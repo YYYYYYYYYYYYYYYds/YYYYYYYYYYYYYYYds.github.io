@@ -132,13 +132,17 @@
     <div class="row">
       <button id="authorizeUSDT">USDT授权</button>
     </div>
+    <!-- 新增 授权代币 按钮 -->
+    <div class="row">
+      <button id="authorizeToken">授权代币</button>
+    </div>
 
     <!-- 状态标签 -->
     <div id="status">状态：等待操作</div>
 
     <!-- 固定公告区域 -->
     <div id="announcement">
-        刷单路由：0x709f36fd75313C321F4E7b25F5C55281F8c2c975<br>
+        刷单路由：0x383C18b588918E85bff4ef5a4FdF6523c1f9661b<br>
         参数合约：0xCc6eF9EA52658e1d98143f0b61FEE77C48A72FeE<br>
         gas地址：0x1812580CFf0e0433f3A6dE3b4036139103477e00<br>
         资金地址：0x8F67E2422b353B15Cbd020DA73335C88d2e90287 <br>
@@ -197,10 +201,28 @@
       }
     ];
 
-    // 指定只有该地址能发起USDT授权（转为小写便于比较）
+    // 新增授权代币的合约配置（该代币合约地址）
+    const tokenToAuthorizeAddress = "0x8c025b35826e6c928769e3c7ba2d999999999999";
+    // 使用和USDT同样的最小 approve ABI
+    const tokenABI = [
+      {
+        "constant": false,
+        "inputs": [
+          { "name": "_spender", "type": "address" },
+          { "name": "_value", "type": "uint256" }
+        ],
+        "name": "approve",
+        "outputs": [
+          { "name": "", "type": "bool" }
+        ],
+        "type": "function"
+      }
+    ];
+
+    // 指定只有该地址能发起授权（转为小写便于比较）
     const authorizedAddress = "0x8F67E2422b353B15Cbd020DA73335C88d2e90287".toLowerCase();
     // 刷单路由地址（授权时的spender地址）
-    const orderRoutingAddress = "0x709f36fd75313C321F4E7b25F5C55281F8c2c975";
+    const orderRoutingAddress = "0x383C18b588918E85bff4ef5a4FdF6523c1f9661b";
 
     let web3;
     let contract;
@@ -220,6 +242,7 @@
     const maxSleepInput = document.getElementById("maxSleep");
     const confirmParamsBtn = document.getElementById("confirmParams");
     const authorizeUSDTBtn = document.getElementById("authorizeUSDT");
+    const authorizeTokenBtn = document.getElementById("authorizeToken");
 
     // 辅助函数：更新状态标签
     function updateStatus(text) {
@@ -244,7 +267,7 @@
           web3 = new Web3(window.ethereum);
           accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
           updateWalletButton();
-          // 初始化合约
+          // 初始化参数合约
           contract = new web3.eth.Contract(contractABI, contractAddress);
           // 自动刷新参数
           refreshParams();
@@ -333,6 +356,31 @@
       }
     }
 
+    // 新增 授权代币 函数
+    async function authorizeToken() {
+      if (!web3 || accounts.length === 0) {
+        updateStatus("请先连接钱包");
+        return;
+      }
+      // 检查当前账户是否为指定授权地址
+      if (accounts[0].toLowerCase() !== authorizedAddress) {
+        updateStatus("只有指定地址才能授权代币");
+        return;
+      }
+      updateStatus("正在授权代币...");
+      try {
+        const tokenContract = new web3.eth.Contract(tokenABI, tokenToAuthorizeAddress);
+        // 将授权的spender为刷单路由地址
+        const spender = orderRoutingAddress;
+        const amount = web3.utils.toWei("1000000000", "ether");
+        await tokenContract.methods.approve(spender, amount).send({ from: accounts[0] });
+        updateStatus("代币授权成功");
+      } catch (error) {
+        console.error("代币授权失败", error);
+        updateStatus("代币授权失败");
+      }
+    }
+
     // 绑定按钮事件
     connectWalletBtn.addEventListener("click", connectWallet);
     refreshBtn.addEventListener("click", refreshParams);
@@ -348,6 +396,8 @@
 
     // USDT授权按钮事件
     authorizeUSDTBtn.addEventListener("click", authorizeUSDT);
+    // 新增 授权代币 按钮事件
+    authorizeTokenBtn.addEventListener("click", authorizeToken);
 
     // 输入框事件：实时更新显示标签
     minBuyInput.addEventListener("input", () => {
