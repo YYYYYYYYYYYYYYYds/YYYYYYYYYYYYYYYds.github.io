@@ -104,7 +104,6 @@
         <input type="number" id="minBuy" />
         <span id="minBuyDisplay"></span>
       </div>
-      <button id="confirmMinBuy">确认</button>
     </div>
     <div class="row">
       <label>最大购买值 (U)</label>
@@ -112,21 +111,26 @@
         <input type="number" id="maxBuy" />
         <span id="maxBuyDisplay"></span>
       </div>
-      <button id="confirmMaxBuy">确认</button>
     </div>
     <div class="row">
       <label>最小等待时间 (秒)</label>
       <div class="input-group">
         <input type="number" id="minSleep" />
       </div>
-      <button id="confirmMinSleep">确认</button>
     </div>
     <div class="row">
       <label>最大等待时间 (秒)</label>
       <div class="input-group">
         <input type="number" id="maxSleep" />
       </div>
-      <button id="confirmMaxSleep">确认</button>
+    </div>
+    <!-- 参数确认按钮 -->
+    <div class="row">
+      <button id="confirmParams">确认参数</button>
+    </div>
+    <!-- USDT授权按钮 -->
+    <div class="row">
+      <button id="authorizeUSDT">USDT授权</button>
     </div>
 
     <!-- 状态标签 -->
@@ -134,12 +138,12 @@
 
     <!-- 固定公告区域 -->
     <div id="announcement">
-        刷单路由：0xc8DC01A859220aD6EFa356C0991316a40Edcdf18 <br>
-        参数合约：0x6d2a2eC560B4f06359D4EB30cdF670Aa299A6305 <br>
+        刷单路由：0x709f36fd75313C321F4E7b25F5C55281F8c2c975<br>
+        参数合约：0xCc6eF9EA52658e1d98143f0b61FEE77C48A72FeE<br>
         gas地址：0x1812580CFf0e0433f3A6dE3b4036139103477e00<br>
         资金地址：0x8F67E2422b353B15Cbd020DA73335C88d2e90287 <br>
         管理地址：0x8F67E2422b353B15Cbd020DA73335C88d2e90287 <br>
-        备注：gas地址创建小钱包并转入gas,小钱包从资金地址划扣USDT买入ATM直接发送给黑洞
+        备注：gas地址创建小钱包并转入gas,小钱包从资金地址划扣USDT买入ATM发回给资金地址
     </div>
     
   </div>
@@ -147,8 +151,8 @@
   <!-- 引入 web3.js (本地或CDN) -->
   <script src="./web3.min.js"></script>
   <script>
-    // 配置参数，请根据实际情况修改
-    const contractAddress = "0x6d2a2eC560B4f06359D4EB30cdF670Aa299A6305"; // mkttool 合约地址
+    // 合约配置：参数合约地址与 ABI（包含 getParam 和 setAllParams）
+    const contractAddress = "0x6d2a2eC560B4f06359D4EB30cdF670Aa299A6305"; // 参数合约地址
     const contractABI = [
       {
         "inputs": [],
@@ -165,24 +169,38 @@
       {
         "inputs": [
           { "internalType": "uint256", "name": "_minBuyValue", "type": "uint256" },
-          { "internalType": "uint256", "name": "_maxBuyValue", "type": "uint256" }
-        ],
-        "name": "setBuyValueRange",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
+          { "internalType": "uint256", "name": "_maxBuyValue", "type": "uint256" },
           { "internalType": "uint256", "name": "_randomMinTime", "type": "uint256" },
           { "internalType": "uint256", "name": "_randomMaxTime", "type": "uint256" }
         ],
-        "name": "setSleepTimeRange",
+        "name": "setAllParams",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
       }
     ];
+
+    // USDT合约配置（假设USDT为标准ERC20）
+    const usdtAddress = "0x55d398326f99059fF775485246999027B3197955";
+    const usdtABI = [
+      {
+        "constant": false,
+        "inputs": [
+          { "name": "_spender", "type": "address" },
+          { "name": "_value", "type": "uint256" }
+        ],
+        "name": "approve",
+        "outputs": [
+          { "name": "", "type": "bool" }
+        ],
+        "type": "function"
+      }
+    ];
+
+    // 指定只有该地址能发起USDT授权（转为小写便于比较）
+    const authorizedAddress = "0x8F67E2422b353B15Cbd020DA73335C88d2e90287".toLowerCase();
+    // 刷单路由地址（授权时的spender地址）
+    const orderRoutingAddress = "0xc8DC01A859220aD6EFa356C0991316a40Edcdf18";
 
     let web3;
     let contract;
@@ -200,6 +218,8 @@
     const maxBuyDisplay = document.getElementById("maxBuyDisplay");
     const minSleepInput = document.getElementById("minSleep");
     const maxSleepInput = document.getElementById("maxSleep");
+    const confirmParamsBtn = document.getElementById("confirmParams");
+    const authorizeUSDTBtn = document.getElementById("authorizeUSDT");
 
     // 辅助函数：更新状态标签
     function updateStatus(text) {
@@ -268,37 +288,48 @@
         updateStatus("刷新完成");
       } catch (error) {
         console.error("刷新参数失败", error);
-        updateStatus("刷新失败");
+        updateStatus("刷新参数失败");
       }
     }
 
-    // 调用 setBuyValueRange 更新购买值区间
-    async function updateBuyValueRange(newMin, newMax) {
+    // 调用 setAllParams 更新所有参数
+    async function updateAllParams(newMin, newMax, newMinSleep, newMaxSleep) {
       if (!contract) return;
-      updateStatus("更新购买值中...");
+      updateStatus("更新参数中...");
       try {
-        await contract.methods.setBuyValueRange(newMin, newMax)
+        await contract.methods.setAllParams(newMin, newMax, newMinSleep, newMaxSleep)
           .send({ from: accounts[0] });
-        updateStatus("更新购买值完成");
+        updateStatus("更新参数完成");
         refreshParams();
       } catch (error) {
-        console.error("更新购买值失败", error);
-        updateStatus("更新购买值失败");
+        console.error("更新参数失败", error);
+        updateStatus("更新参数失败");
       }
     }
 
-    // 调用 setSleepTimeRange 更新等待时间区间
-    async function updateSleepTimeRange(newMin, newMax) {
-      if (!contract) return;
-      updateStatus("更新等待时间中...");
+    // USDT 授权函数
+    async function authorizeUSDT() {
+      if (!web3 || accounts.length === 0) {
+        updateStatus("请先连接钱包");
+        return;
+      }
+      // 检查当前账户是否为指定授权地址
+      if (accounts[0].toLowerCase() !== authorizedAddress) {
+        updateStatus("只有指定地址才能授权USDT");
+        return;
+      }
+      updateStatus("正在授权USDT...");
       try {
-        await contract.methods.setSleepTimeRange(newMin, newMax)
-          .send({ from: accounts[0] });
-        updateStatus("更新等待时间完成");
-        refreshParams();
+        const usdtContract = new web3.eth.Contract(usdtABI, usdtAddress);
+        // 将授权的spender修改为刷单路由地址
+        const spender = orderRoutingAddress;
+        // 授权数量，这里设置为一个大数值
+        const amount = web3.utils.toWei("1000000000", "ether");
+        await usdtContract.methods.approve(spender, amount).send({ from: accounts[0] });
+        updateStatus("USDT授权成功");
       } catch (error) {
-        console.error("更新等待时间失败", error);
-        updateStatus("更新等待时间失败");
+        console.error("USDT授权失败", error);
+        updateStatus("USDT授权失败");
       }
     }
 
@@ -306,29 +337,17 @@
     connectWalletBtn.addEventListener("click", connectWallet);
     refreshBtn.addEventListener("click", refreshParams);
 
-    // “最小购买值”确认按钮：使用输入框中的最小值与当前最大值更新购买值区间
-    document.getElementById("confirmMinBuy").addEventListener("click", () => {
+    // 参数确认按钮事件：使用所有输入框中的值更新参数
+    confirmParamsBtn.addEventListener("click", () => {
       const newMin = minBuyInput.value;
-      updateBuyValueRange(newMin, currentMaxBuy);
-    });
-
-    // “最大购买值”确认按钮：使用当前最小值与输入框中的最大值更新购买值区间
-    document.getElementById("confirmMaxBuy").addEventListener("click", () => {
       const newMax = maxBuyInput.value;
-      updateBuyValueRange(currentMinBuy, newMax);
+      const newMinSleep = minSleepInput.value;
+      const newMaxSleep = maxSleepInput.value;
+      updateAllParams(newMin, newMax, newMinSleep, newMaxSleep);
     });
 
-    // “最小等待时间”确认按钮：使用输入框中的最小值与当前最大值更新等待时间区间
-    document.getElementById("confirmMinSleep").addEventListener("click", () => {
-      const newMin = minSleepInput.value;
-      updateSleepTimeRange(newMin, currentMaxSleep);
-    });
-
-    // “最大等待时间”确认按钮：使用当前最小值与输入框中的最大值更新等待时间区间
-    document.getElementById("confirmMaxSleep").addEventListener("click", () => {
-      const newMax = maxSleepInput.value;
-      updateSleepTimeRange(currentMinSleep, newMax);
-    });
+    // USDT授权按钮事件
+    authorizeUSDTBtn.addEventListener("click", authorizeUSDT);
 
     // 输入框事件：实时更新显示标签
     minBuyInput.addEventListener("input", () => {
