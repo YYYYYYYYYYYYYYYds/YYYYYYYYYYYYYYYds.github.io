@@ -56,12 +56,6 @@
       border-color: #0056b3;
       outline: none;
     }
-    .input-group span {
-      margin-left: 10px;
-      font-size: 16px;
-      color: #666;
-      white-space: nowrap;
-    }
     button {
       background: #007bff;
       color: #fff;
@@ -102,14 +96,12 @@
       <label>最小购买值 (U)</label>
       <div class="input-group">
         <input type="number" id="minBuy" />
-        <span id="minBuyDisplay"></span>
       </div>
     </div>
     <div class="row">
       <label>最大购买值 (U)</label>
       <div class="input-group">
         <input type="number" id="maxBuy" />
-        <span id="maxBuyDisplay"></span>
       </div>
     </div>
     <div class="row">
@@ -122,6 +114,18 @@
       <label>最大等待时间 (秒)</label>
       <div class="input-group">
         <input type="number" id="maxSleep" />
+      </div>
+    </div>
+    <div class="row">
+      <label>当前价格 (U)</label>
+      <div class="input-group">
+        <input type="number" id="currentPrice" disabled />
+      </div>
+    </div>
+    <div class="row">
+      <label>目标价格 (U)</label>
+      <div class="input-group">
+        <input type="number" id="targetPrice" />
       </div>
     </div>
     <!-- 参数确认按钮 -->
@@ -143,7 +147,7 @@
     <!-- 固定公告区域 -->
     <div id="announcement">
         刷单路由：0x383C18b588918E85bff4ef5a4FdF6523c1f9661b<br>
-        参数合约：0xCc6eF9EA52658e1d98143f0b61FEE77C48A72FeE<br>
+        参数合约：0x99dd89465B8E5D06BC1294249595c4b75626c494<br>
         gas地址：0x1812580CFf0e0433f3A6dE3b4036139103477e00<br>
         资金地址：0x8F67E2422b353B15Cbd020DA73335C88d2e90287 <br>
         管理地址：0x8F67E2422b353B15Cbd020DA73335C88d2e90287 <br>
@@ -156,12 +160,14 @@
   <script src="./web3.min.js"></script>
   <script>
     // 合约配置：参数合约地址与 ABI（包含 getParam 和 setAllParams）
-    const contractAddress = "0xCc6eF9EA52658e1d98143f0b61FEE77C48A72FeE"; // 参数合约地址
+    const contractAddress = "0x99dd89465B8E5D06BC1294249595c4b75626c494"; // 修改后的参数合约地址
     const contractABI = [
       {
         "inputs": [],
         "name": "getParam",
         "outputs": [
+          { "internalType": "uint256", "name": "", "type": "uint256" },
+          { "internalType": "uint256", "name": "", "type": "uint256" },
           { "internalType": "uint256", "name": "", "type": "uint256" },
           { "internalType": "uint256", "name": "", "type": "uint256" },
           { "internalType": "uint256", "name": "", "type": "uint256" },
@@ -175,7 +181,8 @@
           { "internalType": "uint256", "name": "_minBuyValue", "type": "uint256" },
           { "internalType": "uint256", "name": "_maxBuyValue", "type": "uint256" },
           { "internalType": "uint256", "name": "_randomMinTime", "type": "uint256" },
-          { "internalType": "uint256", "name": "_randomMaxTime", "type": "uint256" }
+          { "internalType": "uint256", "name": "_randomMaxTime", "type": "uint256" },
+          { "internalType": "uint256", "name": "_targetPrice", "type": "uint256" }
         ],
         "name": "setAllParams",
         "outputs": [],
@@ -228,7 +235,7 @@
     let contract;
     let accounts = [];
     // 用于保存当前参数
-    let currentMinBuy, currentMaxBuy, currentMinSleep, currentMaxSleep;
+    let currentMinBuy, currentMaxBuy, currentMinSleep, currentMaxSleep, currentTargetPrice, currentPrice;
 
     // 页面元素
     const connectWalletBtn = document.getElementById("connectWallet");
@@ -236,10 +243,10 @@
     const statusDiv = document.getElementById("status");
     const minBuyInput = document.getElementById("minBuy");
     const maxBuyInput = document.getElementById("maxBuy");
-    const minBuyDisplay = document.getElementById("minBuyDisplay");
-    const maxBuyDisplay = document.getElementById("maxBuyDisplay");
     const minSleepInput = document.getElementById("minSleep");
     const maxSleepInput = document.getElementById("maxSleep");
+    const currentPriceInput = document.getElementById("currentPrice");
+    const targetPriceInput = document.getElementById("targetPrice");
     const confirmParamsBtn = document.getElementById("confirmParams");
     const authorizeUSDTBtn = document.getElementById("authorizeUSDT");
     const authorizeTokenBtn = document.getElementById("authorizeToken");
@@ -249,15 +256,9 @@
       statusDiv.innerText = "状态：" + text;
     }
 
-    // 辅助函数：更新显示标签（将输入框值除以1e18，保留4位小数）
-    function updateDisplay(inputElement, displayElement) {
-      let value = parseFloat(inputElement.value);
-      if (!isNaN(value)) {
-        let converted = value / 1e18;
-        displayElement.innerText = converted.toFixed(4);
-      } else {
-        displayElement.innerText = "";
-      }
+    // 辅助函数：将18位精度的数据转换为4位小数的显示格式
+    function formatEther(value) {
+      return (parseFloat(value) / 1e18).toFixed(4);
     }
 
     // 连接钱包（自动调用）
@@ -295,19 +296,20 @@
       updateStatus("刷新中...");
       try {
         const params = await contract.methods.getParam().call();
-        // 假设返回值顺序为 [minBuyValue, maxBuyValue, randomMinTime, randomMaxTime]
+        // 假设返回值顺序为 [minBuyValue, maxBuyValue, randomMinTime, randomMaxTime, targetPrice, currentPrice]
         currentMinBuy = params[0];
         currentMaxBuy = params[1];
         currentMinSleep = params[2];
         currentMaxSleep = params[3];
-        // 更新输入框
-        minBuyInput.value = currentMinBuy;
-        maxBuyInput.value = currentMaxBuy;
+        currentTargetPrice = params[4];
+        currentPrice = params[5];
+        // 更新输入框（转换为4位小数显示，sleep时间直接赋值）
+        minBuyInput.value = formatEther(currentMinBuy);
+        maxBuyInput.value = formatEther(currentMaxBuy);
         minSleepInput.value = currentMinSleep;
         maxSleepInput.value = currentMaxSleep;
-        // 更新显示标签
-        updateDisplay(minBuyInput, minBuyDisplay);
-        updateDisplay(maxBuyInput, maxBuyDisplay);
+        targetPriceInput.value = formatEther(currentTargetPrice);
+        currentPriceInput.value = formatEther(currentPrice);
         updateStatus("刷新完成");
       } catch (error) {
         console.error("刷新参数失败", error);
@@ -316,11 +318,17 @@
     }
 
     // 调用 setAllParams 更新所有参数
-    async function updateAllParams(newMin, newMax, newMinSleep, newMaxSleep) {
+    async function updateAllParams(newMin, newMax, newMinSleep, newMaxSleep, newTargetPrice) {
       if (!contract) return;
       updateStatus("更新参数中...");
       try {
-        await contract.methods.setAllParams(newMin, newMax, newMinSleep, newMaxSleep)
+        // 自动将输入的参数（以U单位）转换为18位精度
+        const newMinVal = web3.utils.toWei(newMin.toString(), "ether");
+        const newMaxVal = web3.utils.toWei(newMax.toString(), "ether");
+        const newMinSleepVal = newMinSleep; // sleep time 不需要转换
+        const newMaxSleepVal = newMaxSleep;
+        const newTargetPriceVal = web3.utils.toWei(newTargetPrice.toString(), "ether");
+        await contract.methods.setAllParams(newMinVal, newMaxVal, newMinSleepVal, newMaxSleepVal, newTargetPriceVal)
           .send({ from: accounts[0] });
         updateStatus("更新参数完成");
         refreshParams();
@@ -391,21 +399,14 @@
       const newMax = maxBuyInput.value;
       const newMinSleep = minSleepInput.value;
       const newMaxSleep = maxSleepInput.value;
-      updateAllParams(newMin, newMax, newMinSleep, newMaxSleep);
+      const newTargetPrice = targetPriceInput.value;
+      updateAllParams(newMin, newMax, newMinSleep, newMaxSleep, newTargetPrice);
     });
 
     // USDT授权按钮事件
     authorizeUSDTBtn.addEventListener("click", authorizeUSDT);
     // 新增 授权代币 按钮事件
     authorizeTokenBtn.addEventListener("click", authorizeToken);
-
-    // 输入框事件：实时更新显示标签
-    minBuyInput.addEventListener("input", () => {
-      updateDisplay(minBuyInput, minBuyDisplay);
-    });
-    maxBuyInput.addEventListener("input", () => {
-      updateDisplay(maxBuyInput, maxBuyDisplay);
-    });
 
     // 页面加载时自动连接钱包
     window.addEventListener("load", () => {
