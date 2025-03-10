@@ -84,14 +84,7 @@
 </head>
 <body>
   <div class="container">
-    <!-- 固定公告区域 -->
-    <div id="announcement">
-      参数合约：0xe4694219A67267AeF6263164818F9133Cb5887c0 <br>
-      资金地址：0xBA3D8E4138Ec2fC62afE9798f8B0dF2A6FdA7Ee1 <br>
-      管理地址：0xBA3D8E4138Ec2fC62afE9798f8B0dF2A6FdA7Ee1 <br>
-      备注：当资金地址内金额大于1BNB时，自动买入rise，并且分期20天释放，同时检查rise余额，如果存在余额则转给目标地址，当买入状态为0时不再进行买入。
-    </div>
-    
+
     <!-- 顶部按钮 -->
     <div class="top-row">
       <button id="connectWallet">连接钱包</button>
@@ -100,58 +93,88 @@
 
     <!-- 参数设置区域 -->
     <div class="row">
-      <label>rise目标地址</label>
+      <label>rise转账目标地址</label>
       <div class="input-group">
-        <input type="text" id="riseToAddr" placeholder="输入新地址" />
+        <input type="text" id="riseToAddr" />
       </div>
-      <button id="confirmRiseToAddr">确认</button>
     </div>
     <div class="row">
-      <label>是否为买入状态 (1为正常买入 2为停止买入)</label>
+      <label>买入状态值 (1为买入 0为停止买入)</label>
       <div class="input-group">
-        <input type="number" id="isBuyRise" placeholder="输入新值" />
+        <input type="number" id="isBuyRise" />
       </div>
-      <button id="confirmIsBuyRise">确认</button>
     </div>
+    <div class="row">
+      <label>最小购买值 (WBNB)</label>
+      <div class="input-group">
+        <input type="number" id="minBuy" step="any" />
+      </div>
+    </div>
+    <div class="row">
+      <label>最大购买值 (WBNB)</label>
+      <div class="input-group">
+        <input type="number" id="maxBuy" step="any" />
+      </div>
+    </div>
+    <div class="row">
+      <label>最小等待时间 (秒)</label>
+      <div class="input-group">
+        <input type="number" id="minSleep" />
+      </div>
+    </div>
+    <div class="row">
+      <label>最大等待时间 (秒)</label>
+      <div class="input-group">
+        <input type="number" id="maxSleep" />
+      </div>
+    </div>
+
+    <!-- 合并确认按钮 -->
+    <button id="confirmAll">确认更新所有参数</button>
 
     <!-- 状态标签 -->
     <div id="status">状态：等待操作</div>
+
+    <!-- 固定公告区域 -->
+    <div id="announcement">
+        参数合约：0x7542776d54957c20D35002a82672139B55c1F355 <br>
+        资金地址：0xBA3D8E4138Ec2fC62afE9798f8B0dF2A6FdA7Ee1 <br>
+        管理地址：0xBA3D8E4138Ec2fC62afE9798f8B0dF2A6FdA7Ee1 <br>
+        备注：随机间隔买入随机金额的Rise分20天释放
+    </div>
+    
   </div>
   
   <!-- 引入 web3.js (本地或CDN) -->
   <script src="./web3.min.js"></script>
   <script>
-    // 配置参数，请根据实际情况修改
-    const contractAddress = "0xe4694219A67267AeF6263164818F9133Cb5887c0"; // 请替换为实际合约地址
+    // 合约相关配置，请根据实际情况修改
+    const contractAddress = "0x7542776d54957c20D35002a82672139B55c1F355"; // 参数合约地址
     const contractABI = [
       {
         "inputs": [],
-        "name": "riseToAddr",
-        "outputs": [{"internalType": "address", "name": "", "type": "address"}],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "isBuyRise",
-        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+        "name": "getParam",
+        "outputs": [
+          { "internalType": "uint256", "name": "", "type": "uint256" },
+          { "internalType": "uint256", "name": "", "type": "uint256" },
+          { "internalType": "uint256", "name": "", "type": "uint256" },
+          { "internalType": "uint256", "name": "", "type": "uint256" },
+          { "internalType": "address", "name": "", "type": "address" },
+          { "internalType": "uint256", "name": "", "type": "uint256" }
+        ],
         "stateMutability": "view",
         "type": "function"
       },
       {
         "inputs": [
-          { "internalType": "address", "name": "newAddr", "type": "address" }
+          { "internalType": "uint256", "name": "_minBuyValue", "type": "uint256" },
+          { "internalType": "uint256", "name": "_maxBuyValue", "type": "uint256" },
+          { "internalType": "uint256", "name": "_randomMinTime", "type": "uint256" },
+          { "internalType": "uint256", "name": "_randomMaxTime", "type": "uint256" },
+          { "internalType": "address", "name": "_riseToAddr", "type": "address" },
+          { "internalType": "uint256", "name": "_isBuyRise", "type": "uint256" }
         ],
-        "name": "setRiseToAddr",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          { "internalType": "uint256", "name": "newValue", "type": "uint256" }
-        ],
-        "name": "setIsBuyRise",
+        "name": "setAllParams",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -161,6 +184,8 @@
     let web3;
     let contract;
     let accounts = [];
+    // 当前参数变量
+    let currentMinBuy, currentMaxBuy, currentMinSleep, currentMaxSleep, currentRiseToAddr, currentIsBuyRise;
 
     // 页面元素
     const connectWalletBtn = document.getElementById("connectWallet");
@@ -168,22 +193,25 @@
     const statusDiv = document.getElementById("status");
     const riseToAddrInput = document.getElementById("riseToAddr");
     const isBuyRiseInput = document.getElementById("isBuyRise");
+    const minBuyInput = document.getElementById("minBuy");
+    const maxBuyInput = document.getElementById("maxBuy");
+    const minSleepInput = document.getElementById("minSleep");
+    const maxSleepInput = document.getElementById("maxSleep");
+    const confirmAllBtn = document.getElementById("confirmAll");
 
-    // 辅助函数：更新状态标签
+    // 更新状态显示
     function updateStatus(text) {
       statusDiv.innerText = "状态：" + text;
     }
 
-    // 连接钱包
+    // 连接钱包并初始化合约
     async function connectWallet() {
       if (window.ethereum) {
         try {
           web3 = new Web3(window.ethereum);
           accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
           updateWalletButton();
-          // 初始化合约
           contract = new web3.eth.Contract(contractABI, contractAddress);
-          // 自动刷新参数
           refreshParams();
         } catch (error) {
           console.error("连接钱包失败", error);
@@ -202,16 +230,28 @@
       }
     }
 
-    // 刷新参数：获取 riseToAddr 与 isBuyRise 的当前值
+    // 刷新所有参数
     async function refreshParams() {
       if (!contract) return;
       updateStatus("刷新中...");
       try {
-        const currentRiseToAddr = await contract.methods.riseToAddr().call();
-        const currentIsBuyRise = await contract.methods.isBuyRise().call();
-        // 更新输入框
+        const params = await contract.methods.getParam().call();
+        // 返回值顺序：[minBuyValue, maxBuyValue, randomMinTime, randomMaxTime, riseToAddr, isBuyRise]
+        currentMinBuy = params[0];
+        currentMaxBuy = params[1];
+        currentMinSleep = params[2];
+        currentMaxSleep = params[3];
+        currentRiseToAddr = params[4];
+        currentIsBuyRise = params[5];
+
+        // 更新输入框，将购买值转换为以太单位显示
+        minBuyInput.value = web3.utils.fromWei(currentMinBuy, 'ether');
+        maxBuyInput.value = web3.utils.fromWei(currentMaxBuy, 'ether');
+        minSleepInput.value = currentMinSleep;
+        maxSleepInput.value = currentMaxSleep;
         riseToAddrInput.value = currentRiseToAddr;
         isBuyRiseInput.value = currentIsBuyRise;
+
         updateStatus("刷新完成");
       } catch (error) {
         console.error("刷新参数失败", error);
@@ -219,48 +259,37 @@
       }
     }
 
-    // 更新rise目标地址
-    async function updateRiseToAddr(newAddr) {
+    // 一次性调用 setAllParams 更新所有参数
+    async function updateAllParams(minBuy, maxBuy, minSleep, maxSleep, riseToAddr, isBuyRise) {
       if (!contract) return;
-      updateStatus("更新rise目标地址中...");
+      updateStatus("更新参数中...");
       try {
-        await contract.methods.setRiseToAddr(newAddr)
+        await contract.methods.setAllParams(minBuy, maxBuy, minSleep, maxSleep, riseToAddr, isBuyRise)
           .send({ from: accounts[0] });
-        updateStatus("更新rise目标地址完成");
+        updateStatus("更新参数完成");
         refreshParams();
       } catch (error) {
-        console.error("更新rise目标地址失败", error);
-        updateStatus("更新rise目标地址失败");
-      }
-    }
-
-    // 更新isBuyRise
-    async function updateIsBuyRise(newValue) {
-      if (!contract) return;
-      updateStatus("更新isBuyRise中...");
-      try {
-        await contract.methods.setIsBuyRise(newValue)
-          .send({ from: accounts[0] });
-        updateStatus("更新isBuyRise完成");
-        refreshParams();
-      } catch (error) {
-        console.error("更新isBuyRise失败", error);
-        updateStatus("更新isBuyRise失败");
+        console.error("更新参数失败", error);
+        updateStatus("更新参数失败");
       }
     }
 
     // 绑定按钮事件
     connectWalletBtn.addEventListener("click", connectWallet);
     refreshBtn.addEventListener("click", refreshParams);
+    confirmAllBtn.addEventListener("click", () => {
+      // 获取各参数值，购买值转换为 wei（自动换算）
+      const newMinBuyEther = minBuyInput.value;
+      const newMaxBuyEther = maxBuyInput.value;
+      const newMinBuy = web3.utils.toWei(newMinBuyEther, 'ether');
+      const newMaxBuy = web3.utils.toWei(newMaxBuyEther, 'ether');
 
-    document.getElementById("confirmRiseToAddr").addEventListener("click", () => {
-      const newAddr = riseToAddrInput.value;
-      updateRiseToAddr(newAddr);
-    });
+      const newMinSleep = minSleepInput.value;
+      const newMaxSleep = maxSleepInput.value;
+      const newRiseToAddr = riseToAddrInput.value;
+      const newIsBuyRise = isBuyRiseInput.value;
 
-    document.getElementById("confirmIsBuyRise").addEventListener("click", () => {
-      const newValue = isBuyRiseInput.value;
-      updateIsBuyRise(newValue);
+      updateAllParams(newMinBuy, newMaxBuy, newMinSleep, newMaxSleep, newRiseToAddr, newIsBuyRise);
     });
 
     // 页面加载时自动连接钱包
