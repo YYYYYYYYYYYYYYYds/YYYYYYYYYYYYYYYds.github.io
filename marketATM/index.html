@@ -146,8 +146,8 @@
 
     <!-- 固定公告区域 -->
     <div id="announcement">
-        刷单路由：0x6Ce951930e0E6E48e423BCA464874C24e1CAeD18<br>
-        参数合约：0x99dd89465B8E5D06BC1294249595c4b75626c494<br>
+        刷单路由：0x5D5DD97664349F3aee66bCFdd517BCE2fb39Bd48<br>
+        参数合约：0xD453a0407b3F6CF795cEE968BEEFE96d4B45a103<br>
         gas地址：0x1812580CFf0e0433f3A6dE3b4036139103477e00<br>
         资金地址：0x8F67E2422b353B15Cbd020DA73335C88d2e90287 <br>
         管理地址：0x8F67E2422b353B15Cbd020DA73335C88d2e90287 <br>
@@ -160,7 +160,7 @@
   <script src="./web3.min.js"></script>
   <script>
     // 合约配置：参数合约地址与 ABI（包含 getParam 和 setAllParams）
-    const contractAddress = "0x99dd89465B8E5D06BC1294249595c4b75626c494"; // 修改后的参数合约地址
+    const contractAddress = "0xD453a0407b3F6CF795cEE968BEEFE96d4B45a103"; // 修改后的参数合约地址
     const contractABI = [
       {
         "inputs": [],
@@ -229,7 +229,7 @@
     // 指定只有该地址能发起授权（转为小写便于比较）
     const authorizedAddress = "0x8F67E2422b353B15Cbd020DA73335C88d2e90287".toLowerCase();
     // 刷单路由地址（授权时的spender地址）
-    const orderRoutingAddress = "0x6Ce951930e0E6E48e423BCA464874C24e1CAeD18";
+    const orderRoutingAddress = "0x5D5DD97664349F3aee66bCFdd517BCE2fb39Bd48";
 
     let web3;
     let contract;
