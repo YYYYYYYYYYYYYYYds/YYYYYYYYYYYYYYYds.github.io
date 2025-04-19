@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>ATM市值参数设置 多钱包买入</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="computer.png">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 10px;
+      margin: 0;
+      background: #f0f8ff;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    #announcement {
+      width: 100%;
+      padding: 10px;
+      background: #fffae6;
+      border: 1px solid #ffe58f;
+      border-radius: 4px;
+      font-size: 14px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .row {
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+    }
+    .row label {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .input-group {
+      display: flex;
+      align-items: center;
+    }
+    .input-group input {
+      flex: 1;
+      padding: 12px 10px;
+      font-size: 16px;
+      border: 2px solid #007bff;
+      border-radius: 8px;
+      transition: border-color 0.3s;
+    }
+    .input-group input:focus {
+      border-color: #0056b3;
+      outline: none;
+    }
+    button {
+      background: #007bff;
+      color: #fff;
+      border: none;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 16px;
+      margin-top: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    #status {
+      margin-top: 20px;
+      font-weight: bold;
+      text-align: center;
+    }
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- 顶部按钮 -->
+    <div class="top-row">
+      <button id="connectWallet">连接钱包</button>
+      <button id="refresh">刷新</button>
+    </div>
+
+    <!-- 参数设置区域 -->
+    <div class="row">
+      <label>最小购买值 (U)</label>
+      <div class="input-group">
+        <input type="number" id="minBuy" />
+      </div>
+    </div>
+    <div class="row">
+      <label>最大购买值 (U)</label>
+      <div class="input-group">
+        <input type="number" id="maxBuy" />
+      </div>
+    </div>
+    <div class="row">
+      <label>最小等待时间 (秒)</label>
+      <div class="input-group">
+        <input type="number" id="minSleep" />
+      </div>
+    </div>
+    <div class="row">
+      <label>最大等待时间 (秒)</label>
+      <div class="input-group">
+        <input type="number" id="maxSleep" />
+      </div>
+    </div>
+    <div class="row">
+      <label>当前价格 (U)</label>
+      <div class="input-group">
+        <input type="number" id="currentPrice" disabled />
+      </div>
+    </div>
+    <div class="row">
+      <label>目标价格 (U)</label>
+      <div class="input-group">
+        <input type="number" id="targetPrice" />
+      </div>
+    </div>
+    <!-- 参数确认按钮 -->
+    <div class="row">
+      <button id="confirmParams">确认参数</button>
+    </div>
+    <!-- USDT授权按钮 -->
+    <div class="row">
+      <button id="authorizeUSDT">USDT授权</button>
+    </div>
+    <!-- 新增 授权代币 按钮 -->
+    <div class="row">
+      <button id="authorizeToken">授权代币</button>
+    </div>
+
+    <!-- 状态标签 -->
+    <div id="status">状态：等待操作</div>
+
+    <!-- 固定公告区域 -->
+    <div id="announcement">
+        正在加载合约信息...
+    </div>
+    
+  </div>
+  
+  <!-- 引入 web3.js (本地或CDN) -->
+  <script src="./web3.min.js"></script>
+  <script>
+    // 全局变量：刷单路由地址和参数合约地址
+    const orderRoutingAddress = "0xe17D0D04Ca3851c619692caDf151873BBF6C94de";
+    const contractAddress = "0xB028683F4d136F3D559dF5b7F3885c435b15EF84";
+    
+    // 刷单路由合约ABI（只包含需要的currencyFromAddr方法）
+    const routingABI = [
+      {
+        "inputs": [],
+        "name": "currencyFromAddr",
+        "outputs": [
+          { "internalType": "address", "name": "", "type": "address" }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      }
+    ];
+
+    // 合约配置：参数合约地址与 ABI（包含 getParam 和 setAllParams）
+    const contractABI = [
+      {
+        "inputs": [],
+        "name": "getParam",
+        "outputs": [
+          { "internalType": "uint256", "name": "", "type": "uint256" },
+          { "internalType": "uint256", "name": "", "type": "uint256" },
+          { "internalType": "uint256", "name": "", "type": "uint256" },
+          { "internalType": "uint256", "name": "", "type": "uint256" },
+          { "internalType": "uint256", "name": "", "type": "uint256" },
+          { "internalType": "uint256", "name": "", "type": "uint256" }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          { "internalType": "uint256", "name": "_minBuyValue", "type": "uint256" },
+          { "internalType": "uint256", "name": "_maxBuyValue", "type": "uint256" },
+          { "internalType": "uint256", "name": "_randomMinTime", "type": "uint256" },
+          { "internalType": "uint256", "name": "_randomMaxTime", "type": "uint256" },
+          { "internalType": "uint256", "name": "_targetPrice", "type": "uint256" }
+        ],
+        "name": "setAllParams",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      }
+    ];
+
+    // USDT合约配置（假设USDT为标准ERC20）
+    const usdtAddress = "0x55d398326f99059fF775485246999027B3197955";
+    const usdtABI = [
+      {
+        "constant": false,
+        "inputs": [
+          { "name": "_spender", "type": "address" },
+          { "name": "_value", "type": "uint256" }
+        ],
+        "name": "approve",
+        "outputs": [
+          { "name": "", "type": "bool" }
+        ],
+        "type": "function"
+      }
+    ];
+
+    // 新增授权代币的合约配置（该代币合约地址）
+    const tokenToAuthorizeAddress = "0x8c025b35826e6c928769e3c7ba2d999999999999";
+    // 使用和USDT同样的最小 approve ABI
+    const tokenABI = [
+      {
+        "constant": false,
+        "inputs": [
+          { "name": "_spender", "type": "address" },
+          { "name": "_value", "type": "uint256" }
+        ],
+        "name": "approve",
+        "outputs": [
+          { "name": "", "type": "bool" }
+        ],
+        "type": "function"
+      }
+    ];
+
+    // 指定只有该地址能发起授权（转为小写便于比较）
+    // const authorizedAddress = "0x8F67E2422b353B15Cbd020DA73335C88d2e90287".toLowerCase();
+    
+    // 用于存储从合约读取的资金地址/管理地址
+    let currencyFromAddress = "";
+
+    let web3;
+    let contract;
+    let accounts = [];
+    // 用于保存当前参数
+    let currentMinBuy, currentMaxBuy, currentMinSleep, currentMaxSleep, currentTargetPrice, currentPrice;
+
+    // 页面元素
+    const connectWalletBtn = document.getElementById("connectWallet");
+    const refreshBtn = document.getElementById("refresh");
+    const statusDiv = document.getElementById("status");
+    const minBuyInput = document.getElementById("minBuy");
+    const maxBuyInput = document.getElementById("maxBuy");
+    const minSleepInput = document.getElementById("minSleep");
+    const maxSleepInput = document.getElementById("maxSleep");
+    const currentPriceInput = document.getElementById("currentPrice");
+    const targetPriceInput = document.getElementById("targetPrice");
+    const confirmParamsBtn = document.getElementById("confirmParams");
+    const authorizeUSDTBtn = document.getElementById("authorizeUSDT");
+    const authorizeTokenBtn = document.getElementById("authorizeToken");
+    const announcementDiv = document.getElementById("announcement");
+
+    // 更新公告区域函数
+    function updateAnnouncement() {
+      let announcementHTML = `
+        刷单路由：${orderRoutingAddress}<br>
+        参数合约：${contractAddress}<br>
+        gas地址：0x1812580CFf0e0433f3A6dE3b4036139103477e00<br>
+        资金地址：${currencyFromAddress} <br>
+        管理地址：${currencyFromAddress} <br>
+        备注：gas地址创建小钱包并转入gas,小钱包从资金地址划扣USDT买入ATM发回给资金地址
+      `;
+      announcementDiv.innerHTML = announcementHTML;
+    }
+
+    // 从刷单路由合约读取 currencyFromAddr
+    async function getCurrencyFromAddress() {
+      if (!web3) return;
+      try {
+        const routingContract = new web3.eth.Contract(routingABI, orderRoutingAddress);
+        currencyFromAddress = await routingContract.methods.currencyFromAddr().call();
+        currencyFromAddress = currencyFromAddress.toLowerCase();
+        updateAnnouncement();
+      } catch (error) {
+        console.error("读取资金地址失败", error);
+        updateStatus("读取资金地址失败");
+      }
+    }
+
+    // 辅助函数：更新状态标签
+    function updateStatus(text) {
+      statusDiv.innerText = "状态：" + text;
+    }
+
+    // 辅助函数：将18位精度的数据转换为4位小数的显示格式
+    function formatEther(value) {
+      return (parseFloat(value) / 1e18).toFixed(4);
+    }
+
+    // 连接钱包（自动调用）
+    async function connectWallet() {
+      if (window.ethereum) {
+        try {
+          web3 = new Web3(window.ethereum);
+          accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          updateWalletButton();
+          // 初始化参数合约
+          contract = new web3.eth.Contract(contractABI, contractAddress);
+          // 更新公告中显示的地址
+          updateAnnouncement();
+          // 读取资金地址
+          await getCurrencyFromAddress();
+          // 自动刷新参数
+          refreshParams();
+        } catch (error) {
+          console.error("连接钱包失败", error);
+          updateStatus("连接钱包失败");
+        }
+      } else {
+        alert("请安装 MetaMask 钱包");
+      }
+    }
+
+    function updateWalletButton() {
+      if (accounts.length > 0) {
+        const addr = accounts[0];
+        // 显示为 0x1234...abcd 格式
+        const shortAddr = addr.slice(0, 6) + "..." + addr.slice(-4);
+        connectWalletBtn.innerText = shortAddr;
+      }
+    }
+
+    // 刷新参数
+    async function refreshParams() {
+      if (!contract) return;
+      updateStatus("刷新中...");
+      try {
+        const params = await contract.methods.getParam().call();
+        // 假设返回值顺序为 [minBuyValue, maxBuyValue, randomMinTime, randomMaxTime, targetPrice, currentPrice]
+        currentMinBuy = params[0];
+        currentMaxBuy = params[1];
+        currentMinSleep = params[2];
+        currentMaxSleep = params[3];
+        currentTargetPrice = params[4];
+        currentPrice = params[5];
+        // 更新输入框（转换为4位小数显示，sleep时间直接赋值）
+        minBuyInput.value = formatEther(currentMinBuy);
+        maxBuyInput.value = formatEther(currentMaxBuy);
+        minSleepInput.value = currentMinSleep;
+        maxSleepInput.value = currentMaxSleep;
+        targetPriceInput.value = formatEther(currentTargetPrice);
+        currentPriceInput.value = formatEther(currentPrice);
+        updateStatus("刷新完成");
+      } catch (error) {
+        console.error("刷新参数失败", error);
+        updateStatus("刷新参数失败");
+      }
+    }
+
+    // 调用 setAllParams 更新所有参数
+    async function updateAllParams(newMin, newMax, newMinSleep, newMaxSleep, newTargetPrice) {
+      if (!contract) return;
+      updateStatus("更新参数中...");
+      try {
+        // 自动将输入的参数（以U单位）转换为18位精度
+        const newMinVal = web3.utils.toWei(newMin.toString(), "ether");
+        const newMaxVal = web3.utils.toWei(newMax.toString(), "ether");
+        const newMinSleepVal = newMinSleep; // sleep time 不需要转换
+        const newMaxSleepVal = newMaxSleep;
+        const newTargetPriceVal = web3.utils.toWei(newTargetPrice.toString(), "ether");
+        await contract.methods.setAllParams(newMinVal, newMaxVal, newMinSleepVal, newMaxSleepVal, newTargetPriceVal)
+          .send({ from: accounts[0] });
+        updateStatus("更新参数完成");
+        refreshParams();
+      } catch (error) {
+        console.error("更新参数失败", error);
+        updateStatus("更新参数失败");
+      }
+    }
+
+    // USDT 授权函数
+    async function authorizeUSDT() {
+      if (!web3 || accounts.length === 0) {
+        updateStatus("请先连接钱包");
+        return;
+      }
+      // 检查当前账户是否为指定授权地址
+      if (accounts[0].toLowerCase() !== currencyFromAddress) {
+        updateStatus("只有指定地址才能授权USDT");
+        return;
+      }
+      updateStatus("正在授权USDT...");
+      try {
+        const usdtContract = new web3.eth.Contract(usdtABI, usdtAddress);
+        // 将授权的spender修改为刷单路由地址
+        const spender = orderRoutingAddress;
+        // 授权数量，这里设置为一个大数值
+        const amount = web3.utils.toWei("1000000000", "ether");
+        await usdtContract.methods.approve(spender, amount).send({ from: accounts[0] });
+        updateStatus("USDT授权成功");
+      } catch (error) {
+        console.error("USDT授权失败", error);
+        updateStatus("USDT授权失败");
+      }
+    }
+
+    // 新增 授权代币 函数
+    async function authorizeToken() {
+      if (!web3 || accounts.length === 0) {
+        updateStatus("请先连接钱包");
+        return;
+      }
+      // 检查当前账户是否为指定授权地址
+      if (accounts[0].toLowerCase() !== currencyFromAddress) {
+        updateStatus("只有指定地址才能授权代币");
+        return;
+      }
+      updateStatus("正在授权代币...");
+      try {
+        const tokenContract = new web3.eth.Contract(tokenABI, tokenToAuthorizeAddress);
+        // 将授权的spender为刷单路由地址
+        const spender = orderRoutingAddress;
+        const amount = web3.utils.toWei("1000000000", "ether");
+        await tokenContract.methods.approve(spender, amount).send({ from: accounts[0] });
+        updateStatus("代币授权成功");
+      } catch (error) {
+        console.error("代币授权失败", error);
+        updateStatus("代币授权失败");
+      }
+    }
+
+    // 绑定按钮事件
+    connectWalletBtn.addEventListener("click", connectWallet);
+    refreshBtn.addEventListener("click", refreshParams);
+
+    // 参数确认按钮事件：使用所有输入框中的值更新参数
+    confirmParamsBtn.addEventListener("click", () => {
+      const newMin = minBuyInput.value;
+      const newMax = maxBuyInput.value;
+      const newMinSleep = minSleepInput.value;
+      const newMaxSleep = maxSleepInput.value;
+      const newTargetPrice = targetPriceInput.value;
+      updateAllParams(newMin, newMax, newMinSleep, newMaxSleep, newTargetPrice);
+    });
+
+    // USDT授权按钮事件
+    authorizeUSDTBtn.addEventListener("click", authorizeUSDT);
+    // 新增 授权代币 按钮事件
+    authorizeTokenBtn.addEventListener("click", authorizeToken);
+
+    // 页面加载时自动连接钱包
+    window.addEventListener("load", () => {
+      // 先更新公告区域显示全局变量
+      updateAnnouncement();
+      if (window.ethereum) {
+        connectWallet();
+      }
+    });
+  </script>
+</body>
+</html>
