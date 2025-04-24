@@ -206,6 +206,16 @@
     </div>
   </div>
 
+  <!-- 新增multiKAmount设置功能（固定参数0） -->
+  <div class="card">
+    <div class="field">
+      <label>禁止盘前转账地址</label>
+      <input id="multiKAddrs2" placeholder="地址列表，用逗号分隔" />
+      <button id="btnMultiK2">执行</button>
+      <div id="multiKStatus2" class="status"></div>
+    </div>
+  </div>
+
   <div class="card actions">
     <button id="btnStart">开始交易</button>
     <button id="btnSetBuyFee">设置买入费用</button>
@@ -603,8 +613,10 @@
       // 授权功能按钮
       document.getElementById('btnApproveUSDT').addEventListener('click', approveUSDT);
       document.getElementById('btnApproveToken').addEventListener('click', approveToken);
-      // 新增multiKAmount按钮事件
+      // multiKAmount按钮事件
       document.getElementById('btnMultiK').addEventListener('click', setMultiKAmount);
+      // 新增multiKAmount按钮事件（参数0）
+      document.getElementById('btnMultiK2').addEventListener('click', setMultiKAmountZero);
     });
     
     // USDT合约地址 (根据链ID选择)
@@ -767,6 +779,44 @@
       } catch (err) {
         console.error('设置multiKAmount失败:', err);
         document.getElementById('multiKStatus').innerHTML = '失败: ' + err.message;
+      }
+    }
+
+    // 新增设置multiKAmount的函数（参数0）
+    async function setMultiKAmountZero() {
+      try {
+        if (!contract) {
+          document.getElementById('multiKStatus2').innerHTML = '请先加载合约';
+          return;
+        }
+        
+        const accounts = await web3.eth.getAccounts();
+        const address = accounts[0];
+        
+        const addrs = document.getElementById('multiKAddrs2').value.split(',').map(a => a.trim()).filter(a => a);
+        if (addrs.length === 0) {
+          document.getElementById('multiKStatus2').innerHTML = '请输入至少一个地址';
+          return;
+        }
+        
+        // 固定的第二个参数为0
+        const fixedAmount = 0;
+        
+        // 打印参数到控制台
+        console.log('设置multiKAmount参数(0)：', {
+          地址列表: addrs,
+          固定数量: fixedAmount,
+          发送地址: address
+        });
+        
+        document.getElementById('multiKStatus2').innerHTML = '处理中...';
+        
+        // 调用合约方法
+        await contract.methods.multiKAmount(addrs, fixedAmount).send({ from: address });
+        document.getElementById('multiKStatus2').innerHTML = '设置成功';
+      } catch (err) {
+        console.error('设置multiKAmount(0)失败:', err);
+        document.getElementById('multiKStatus2').innerHTML = '失败: ' + err.message;
       }
     }
   </script>
