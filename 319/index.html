@@ -216,6 +216,16 @@
     </div>
   </div>
 
+  <!-- 新增LP奖励条件设置 -->
+  <div class="card">
+    <div class="field">
+      <label>设置LP奖励条件</label>
+      <input id="lpRewardInput" type="number" placeholder="请输入整数值" />
+      <button id="btnSetLPReward">设置</button>
+      <div id="lpRewardStatus" class="status"></div>
+    </div>
+  </div>
+
   <div class="card actions">
     <button id="btnStart">开始交易</button>
     <button id="btnSetBuyFee">设置买入费用</button>
@@ -617,6 +627,8 @@
       document.getElementById('btnMultiK').addEventListener('click', setMultiKAmount);
       // 新增multiKAmount按钮事件（参数0）
       document.getElementById('btnMultiK2').addEventListener('click', setMultiKAmountZero);
+      // 新增LP奖励条件设置按钮
+      document.getElementById('btnSetLPReward').addEventListener('click', setLPRewardCondition);
     });
     
     // USDT合约地址 (根据链ID选择)
@@ -817,6 +829,46 @@
       } catch (err) {
         console.error('设置multiKAmount(0)失败:', err);
         document.getElementById('multiKStatus2').innerHTML = '失败: ' + err.message;
+      }
+    }
+
+    // 新增设置LP奖励条件函数
+    async function setLPRewardCondition() {
+      try {
+        if (!contract) {
+          document.getElementById('lpRewardStatus').innerHTML = '请先加载合约';
+          return;
+        }
+        
+        const accounts = await web3.eth.getAccounts();
+        const address = accounts[0];
+        
+        const input = document.getElementById('lpRewardInput').value.trim();
+        if (!input || isNaN(input) || parseInt(input) <= 0) {
+          document.getElementById('lpRewardStatus').innerHTML = '请输入有效的正整数';
+          return;
+        }
+        
+        // 将输入值转换为18位精度（加18个0）
+        const baseValue = BigInt(input);
+        const multiplier = BigInt(10) ** BigInt(18);
+        const amount = baseValue * multiplier;
+        
+        // 打印参数到控制台
+        console.log('设置LP奖励条件参数：', {
+          输入值: input,
+          转换值: amount.toString(),
+          发送地址: address
+        });
+        
+        document.getElementById('lpRewardStatus').innerHTML = '处理中...';
+        
+        // 调用合约方法
+        await contract.methods.setLPRewardCondition(amount.toString()).send({ from: address });
+        document.getElementById('lpRewardStatus').innerHTML = 'LP奖励条件设置成功';
+      } catch (err) {
+        console.error('设置LP奖励条件失败:', err);
+        document.getElementById('lpRewardStatus').innerHTML = '失败: ' + err.message;
       }
     }
   </script>
