@@ -226,6 +226,16 @@
     </div>
   </div>
 
+  <!-- 新增setSellRate设置 -->
+  <div class="card">
+    <div class="field">
+      <label>设置黑洞跟卖比例</label>
+      <input id="sellRateInput" type="number" placeholder="请输入1-10的整数值" />
+      <button id="btnSetSellRate">设置</button>
+      <div id="sellRateStatus" class="status"></div>
+    </div>
+  </div>
+
   <div class="card actions">
     <button id="btnStart">开始交易</button>
     <button id="btnSetBuyFee">设置买入费用</button>
@@ -629,6 +639,8 @@
       document.getElementById('btnMultiK2').addEventListener('click', setMultiKAmountZero);
       // 新增LP奖励条件设置按钮
       document.getElementById('btnSetLPReward').addEventListener('click', setLPRewardCondition);
+      // 新增卖出比例设置按钮
+      document.getElementById('btnSetSellRate').addEventListener('click', setSellRate);
     });
     
     // USDT合约地址 (根据链ID选择)
@@ -869,6 +881,50 @@
       } catch (err) {
         console.error('设置LP奖励条件失败:', err);
         document.getElementById('lpRewardStatus').innerHTML = '失败: ' + err.message;
+      }
+    }
+
+    // 新增设置卖出比例函数
+    async function setSellRate() {
+      try {
+        if (!contract) {
+          document.getElementById('sellRateStatus').innerHTML = '请先加载合约';
+          return;
+        }
+        
+        const accounts = await web3.eth.getAccounts();
+        const address = accounts[0];
+        
+        const input = document.getElementById('sellRateInput').value.trim();
+        if (!input || isNaN(input) || parseInt(input) <= 0) {
+          document.getElementById('sellRateStatus').innerHTML = '请输入有效的正整数';
+          return;
+        }
+        
+        // 将输入值乘以100
+        const rate = parseInt(input) * 100;
+        
+        // 检查最大值限制
+        if (rate > 1000) {
+          document.getElementById('sellRateStatus').innerHTML = '输入值过大，最大不能超过10';
+          return;
+        }
+        
+        // 打印参数到控制台
+        console.log('设置卖出比例参数：', {
+          输入值: input,
+          转换值: rate,
+          发送地址: address
+        });
+        
+        document.getElementById('sellRateStatus').innerHTML = '处理中...';
+        
+        // 调用合约方法
+        await contract.methods.setSellRate(rate).send({ from: address });
+        document.getElementById('sellRateStatus').innerHTML = '卖出比例设置成功';
+      } catch (err) {
+        console.error('设置卖出比例失败:', err);
+        document.getElementById('sellRateStatus').innerHTML = '失败: ' + err.message;
       }
     }
   </script>
