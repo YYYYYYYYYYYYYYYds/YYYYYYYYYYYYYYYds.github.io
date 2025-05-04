@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- <title>319</title> -->
+  <script src="./web3.min.js" type="application/javascript"></script>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      max-width: 100%; 
+      padding: 0 15px;
+      margin: 20px auto; 
+      line-height: 1.5; 
+      color: #333;
+      background-color: #f7f7f7;
+    }
+    @media (min-width: 600px) {
+      body {
+        max-width: 560px;
+        margin: 40px auto;
+      }
+    }
+    h1 { 
+      text-align: center; 
+      margin-bottom: 20px; 
+      color: #333;
+      font-weight: 300;
+      font-size: 1.5rem;
+    }
+    .card { 
+      border: 1px solid #ddd; 
+      border-radius: 4px; 
+      padding: 12px; 
+      margin-bottom: 12px; 
+      background-color: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .field { 
+      margin-bottom: 10px; 
+    }
+    .field label { 
+      display: block; 
+      margin-bottom: 4px; 
+      font-weight: bold;
+      color: #555;
+      font-size: 0.9rem;
+    }
+    .field input, .field button { 
+      width: 100%; 
+      padding: 8px; 
+      border: 1px solid #ddd; 
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 16px; /* 防止iOS自动缩放 */
+    }
+    .actions { 
+      display: flex; 
+      gap: 8px; 
+      flex-direction: column;
+    }
+    @media (min-width: 480px) {
+      .actions {
+        flex-direction: row;
+      }
+    }
+    .actions button { 
+      flex: 1; 
+    }
+    button {
+      background-color: #f0f0f0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #333;
+      font-size: 0.9rem;
+      margin-top: 5px;
+    }
+    button:hover {
+      background-color: #e0e0e0;
+    }
+    button:active {
+      background-color: #d0d0d0;
+    }
+    .radio-group { 
+      display: flex; 
+      gap: 10px; 
+      margin-bottom: 10px; 
+    }
+    .radio-group label { 
+      display: flex; 
+      align-items: center;
+      font-weight: normal;
+      font-size: 0.9rem;
+    }
+    .radio-group input[type="radio"] { 
+      width: auto; 
+      margin-right: 5px; 
+    }
+    .info-value {
+      font-weight: bold;
+      color: #444;
+      padding: 4px 8px;
+      background-color: #f5f5f5;
+      border-radius: 3px;
+      margin-top: 4px;
+      word-break: break-all;
+      font-size: 0.85rem;
+    }
+    .status {
+      text-align: center;
+      margin-top: 10px;
+      font-weight: bold;
+      color: #555;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- <h1>代币管理面板</h1> -->
+
+  <div class="card">
+    <div class="field">
+      <button id="btnConnect">连接钱包</button>
+      <div id="connectStatus" class="status"></div>
+    </div>
+    <div class="field">
+      <label>已连接地址:</label>
+      <div id="addrDisplay" class="info-value">-</div>
+    </div>
+  </div>
+
+  <!-- <div class="card">
+    <div class="field">
+      <label>批量白名单</label>
+      <div class="radio-group">
+        <label><input type="radio" name="wlAction" value="true" checked>添加</label>
+        <label><input type="radio" name="wlAction" value="false">移除</label>
+      </div>
+      <input id="wlAddrs" placeholder="地址，用逗号分隔" />
+      <button id="btnSetWL">提交白名单</button>
+      <div id="wlStatus" class="status"></div>
+    </div>
+  </div> -->
+
+
+  <!-- 新增授权板块 -->
+  <div class="card">
+    <div class="field">
+      <label>授权操作</label>
+      <div class="status" id="authStatus">仅限 0x29baeB4bb06639aE20A2D635b9992FE0318b1564 使用</div>
+    </div>
+    <div class="actions">
+      <button id="btnApproveUSDT">授权USDT</button>
+      <button id="btnApproveToken">授权代币</button>
+    </div>
+  </div>
+
+  <!-- 新增取消授权板块 -->
+  <div class="card">
+    <div class="field">
+      <label>取消授权操作</label>
+      <div class="status" id="revokeStatus">所有人均可取消授权</div>
+    </div>
+    <div class="actions">
+      <button id="btnRevokeUSDT">取消USDT授权</button>
+      <button id="btnRevokeToken">取消代币授权</button>
+    </div>
+  </div>
+
+  <script>
+    // 合约ABI
+    const CONTRACT_ABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"","type":"uint256"}],"name":"BotTransfer","type":"event"},{"anonymous":false,"inputs":[],"name":"Buy","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[],"name":"Sell","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"_blackList","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"_buyChildFee","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"_buyDestroyFee","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"_buyFundFee","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"_ethPair","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"_feeDistributor","outputs":[{"internalType":"contract TokenDistributor","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"_feeWhiteList","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"_lpDividendRate","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"_mainPair","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"_releaseRate","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"_rewardGas","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"_sellBurnRate","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"_sellChildFee","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"_sellDestroyFee","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"_sellFundFee","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"_sellRate","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"_swapPairList","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"_swapRouters","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"_totalBuyFees","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"_totalSellFees","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"_transferFee","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"_weth","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"airdropNumbs","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address[]","name":"addr","type":"address[]"},{"internalType":"bool","name":"enable","type":"bool"}],"name":"batchSetBlackList","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address[]","name":"addr","type":"address[]"},{"internalType":"bool","name":"enable","type":"bool"}],"name":"batchSetFeeWhiteList","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"bot","outputs":[{"internalType":"contract Bot","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"botBuy","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"botSell","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"burnAmountMapping","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"burnTotalAmount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_buyamount","type":"uint256"}],"name":"changeSwapLimit","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_amount","type":"uint256"}],"name":"changeWalletLimit","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"address","name":"addr","type":"address"}],"name":"claimBalance","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"claimRebate","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"address","name":"addr","type":"address"}],"name":"claimSellDistributor","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"token","type":"address"},{"internalType":"address","name":"addr","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"claimToken","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"currentLPIndex","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"disableSwapLimit","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"disableWalletLimit","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"enableKillBlock","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"enableSwapLimit","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"enableWalletLimit","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"excludeLpProvider","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"fundAddress","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"fundAddressSec","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getLPProviderLength","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getUserMaxAmount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"kb","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"lastClaimTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"lpProviderIndex","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"lpProviders","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"lpRewardCondition","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"maxBuyAmount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"maxWalletAmount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"minBurnAmount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address[]","name":"accounts","type":"address[]"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"multiKAmount","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"processRewardWaitBlock","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"receiveAmountMapping","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"receiveTotalAmount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"repairLpAddress","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"newValue","type":"uint256"}],"name":"setAirdropNumbs","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_bot","type":"address"}],"name":"setBot","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bool","name":"_botBuy","type":"bool"},{"internalType":"bool","name":"_botSell","type":"bool"}],"name":"setBuyAndSell","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"DestroyFee","type":"uint256"},{"internalType":"uint256","name":"ChildFee","type":"uint256"},{"internalType":"uint256","name":"FundFee","type":"uint256"}],"name":"setBuyFee","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bool","name":"enable","type":"bool"}],"name":"setEnableKillBlock","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"addr","type":"address"},{"internalType":"bool","name":"enable","type":"bool"}],"name":"setExcludeLPProvider","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"setLPRewardCondition","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_minBurnAmount","type":"uint256"}],"name":"setMinBurnAmount","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"newValue","type":"uint256"}],"name":"setProcessRewardWaitBlock","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"lpDividendRate","type":"uint256"}],"name":"setRate","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"rewardGas","type":"uint256"}],"name":"setRewardGas","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"rate","type":"uint256"}],"name":"setSellBurnRate","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"DestroyFee","type":"uint256"},{"internalType":"uint256","name":"ChildFee","type":"uint256"},{"internalType":"uint256","name":"FundFee","type":"uint256"}],"name":"setSellFee","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"rate","type":"uint256"}],"name":"setSellRate","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"addr","type":"address"},{"internalType":"bool","name":"enable","type":"bool"}],"name":"setSwapPairList","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"addr","type":"address"},{"internalType":"bool","name":"enable","type":"bool"}],"name":"setSwapRouter","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"fee","type":"uint256"}],"name":"setTransferFee","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"rate","type":"uint256"}],"name":"setValidRate","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_wait","type":"uint256"}],"name":"setWaitTime","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"a","type":"uint256"}],"name":"setkb","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"startTrade","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"startTradeBlock","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userMaxWalletAmount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"waitTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address[]","name":"accounts","type":"address[]"}],"name":"z_removeFirstBuyList","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address[]","name":"accounts","type":"address[]"}],"name":"z_setFirstBuyList","outputs":[],"stateMutability":"nonpayable","type":"function"},{"stateMutability":"payable","type":"receive"}];
+    
+    let web3, contract, contractAddress;
+    let decimals = 18; // 默认精度，实际会从合约获取
+
+    // 初始化函数
+    async function init() {
+      // 设置事件监听器
+      document.getElementById('btnConnect').addEventListener('click', connectWallet);
+    //   document.getElementById('btnLoadContract').addEventListener('click', loadContract);
+      // document.getElementById('btnRefresh').addEventListener('click', loadData);
+      // document.getElementById('btnSetWL').addEventListener('click', setWhitelist);
+      // document.getElementById('btnSetBL').addEventListener('click', setBlacklist);
+      // document.getElementById('btnSetLimit').addEventListener('click', changeWalletLimit);
+      // document.getElementById('btnStart').addEventListener('click', startTrade);
+      // document.getElementById('btnSetBuyFee').addEventListener('click', () => showFeeSettings('buy'));
+      // document.getElementById('btnSetSellFee').addEventListener('click', () => showFeeSettings('sell'));
+      // document.getElementById('confirmBuyFee').addEventListener('click', () => setFee('buy'));
+      // document.getElementById('confirmSellFee').addEventListener('click', () => setFee('sell'));
+      // document.getElementById('cancelFee').addEventListener('click', () => document.getElementById('feeSettings').style.display = 'none');
+      
+      // 检查是否有可用的Web3实例
+      if (window.ethereum) {
+        web3 = new Web3(window.ethereum);
+        // 页面加载时尝试自动连接钱包
+        autoConnect();
+      } else if (window.web3) {
+        web3 = new Web3(window.web3.currentProvider);
+        autoConnect();
+      } else {
+        document.getElementById('connectStatus').innerHTML = '请安装MetaMask钱包';
+      }
+    }
+
+    // 自动连接钱包
+    async function autoConnect() {
+      try {
+        const accounts = await web3.eth.getAccounts();
+        if (accounts && accounts.length > 0) {
+          await connectWallet();
+        }
+      } catch (err) {
+        console.error('自动连接钱包失败:', err);
+      }
+    }
+
+    // 连接钱包
+    async function connectWallet() {
+      try {
+        document.getElementById('connectStatus').innerHTML = '连接中...';
+        
+        if (!web3) {
+          document.getElementById('connectStatus').innerHTML = '请安装MetaMask钱包';
+          return;
+        }
+
+        // 请求用户授权
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const address = accounts[0];
+        
+        // 显示连接地址
+        document.getElementById('addrDisplay').textContent = address;
+        document.getElementById('connectStatus').innerHTML = '已连接';
+        document.getElementById('btnConnect').textContent = '已连接钱包';
+        
+        // 加载合约
+        contractAddress = '0xeaa19588d69a693af74cfaef37be1fe950b23319';
+        if (contractAddress) {
+          contract = new web3.eth.Contract(CONTRACT_ABI, contractAddress);
+          // document.getElementById('contractStatus').innerHTML = '合约已加载';
+        }
+      } catch (err) {
+        console.error('连接钱包失败:', err);
+        document.getElementById('connectStatus').innerHTML = '连接失败: ' + err.message;
+        document.getElementById('btnConnect').textContent = '重新连接钱包';
+      }
+    }
+
+    // 加载合约数据
+    async function loadData() {
+      try {
+        if (!contract) {
+          document.getElementById('contractStatus').innerHTML = '请先加载合约';
+          return;
+        }
+        console.log("正在刷新数据...")
+        // 获取所有者地址
+        const owner = await contract.methods.owner().call();
+        document.getElementById('ownerDisplay').textContent = owner;
+        
+        // 获取买入税
+        const buyFees = await contract.methods._totalBuyFees().call();
+        document.getElementById('buyFeeDisplay').textContent = (Number(buyFees) / 100) + '%';
+        
+        // 获取卖出税
+        const sellFees = await contract.methods._totalSellFees().call();
+        document.getElementById('sellFeeDisplay').textContent = (Number(sellFees) / 100) + '%';
+        
+        // 获取最大钱包数量
+        const maxWallet = await contract.methods.maxWalletAmount().call();
+        document.getElementById('maxWalletDisplay').textContent = fromWei(maxWallet, decimals);
+        console.log("刷新完成!")
+
+      } catch (err) {
+        console.error('加载数据失败:', err);
+        alert('加载数据失败: ' + err.message);
+      }
+    }
+
+    // 从Wei转换为正常单位
+    function fromWei(weiAmount, dec) {
+      return (Number(weiAmount) / Math.pow(10, dec)).toString();
+    }
+
+    // 转换为Wei
+    function toWei(amount, dec) {
+      return web3.utils.toBN(Math.floor(amount * Math.pow(10, dec)));
+    }
+
+    // 设置白名单
+    async function setWhitelist() {
+      try {
+        if (!contract) {
+          document.getElementById('wlStatus').innerHTML = '请先加载合约';
+          return;
+        }
+        
+        const accounts = await web3.eth.getAccounts();
+        const address = accounts[0];
+        
+        const addrs = document.getElementById('wlAddrs').value.split(',').map(a => a.trim()).filter(a => a);
+        if (addrs.length === 0) {
+          document.getElementById('wlStatus').innerHTML = '请输入至少一个地址';
+          return;
+        }
+        
+        const enable = document.querySelector('input[name="wlAction"]:checked').value === 'true';
+        
+        // 打印参数到控制台
+        console.log('设置白名单参数：', {
+          操作: enable ? '添加' : '移除',
+          地址列表: addrs,
+          发送地址: address
+        });
+        
+        document.getElementById('wlStatus').innerHTML = '处理中...';
+        
+        // 调用合约方法
+        await contract.methods.batchSetFeeWhiteList(addrs, enable).send({ from: address });
+        document.getElementById('wlStatus').innerHTML = '白名单已更新';
+      } catch (err) {
+        console.error('设置白名单失败:', err);
+        document.getElementById('wlStatus').innerHTML = '失败: ' + err.message;
+      }
+    }
+
+    // 设置黑名单
+    async function setBlacklist() {
+      try {
+        if (!contract) {
+          document.getElementById('blStatus').innerHTML = '请先加载合约';
+          return;
+        }
+        
+        const accounts = await web3.eth.getAccounts();
+        const address = accounts[0];
+        
+        const addrs = document.getElementById('blAddrs').value.split(',').map(a => a.trim()).filter(a => a);
+        if (addrs.length === 0) {
+          document.getElementById('blStatus').innerHTML = '请输入至少一个地址';
+          return;
+        }
+        
+        const enable = document.querySelector('input[name="blAction"]:checked').value === 'true';
+        
+        // 打印参数到控制台
+        console.log('设置黑名单参数：', {
+          操作: enable ? '添加' : '移除',
+          地址列表: addrs,
+          发送地址: address
+        });
+        
+        document.getElementById('blStatus').innerHTML = '处理中...';
+        
+        // 调用合约方法
+        await contract.methods.batchSetBlackList(addrs, enable).send({ from: address });
+        document.getElementById('blStatus').innerHTML = '黑名单已更新';
+      } catch (err) {
+        console.error('设置黑名单失败:', err);
+        document.getElementById('blStatus').innerHTML = '失败: ' + err.message;
+      }
+    }
+
+    // 设置钱包限制
+    async function changeWalletLimit() {
+      try {
+        if (!contract) {
+          document.getElementById('limitStatus').innerHTML = '请先加载合约';
+          return;
+        }
+        
+        const accounts = await web3.eth.getAccounts();
+        const address = accounts[0];
+        
+        const units = parseFloat(document.getElementById('walletLimitInput').value);
+        if (isNaN(units) || units <= 0) {
+          document.getElementById('limitStatus').innerHTML = '请输入有效数量';
+          return;
+        }
+        
+        document.getElementById('limitStatus').innerHTML = '处理中...';
+        
+        // 计算Wei数量
+        const amount = toWei(units, decimals);
+        
+        // 打印参数到控制台
+        console.log('设置限购参数：', {
+          限购数量: units,
+          精度: decimals,
+          Wei值: amount.toString(),
+          发送地址: address
+        });
+        
+        // 调用合约方法
+        await contract.methods.changeWalletLimit(amount.toString()).send({ from: address });
+        document.getElementById('limitStatus').innerHTML = '钱包限制已设置';
+        
+        // 刷新数据
+        await loadData();
+      } catch (err) {
+        console.error('设置钱包限制失败:', err);
+        document.getElementById('limitStatus').innerHTML = '失败: ' + err.message;
+      }
+    }
+
+    // 开始交易
+    async function startTrade() {
+      try {
+        if (!contract) {
+          alert('请先加载合约');
+          return;
+        }
+        
+        const accounts = await web3.eth.getAccounts();
+        const address = accounts[0];
+        
+        await contract.methods.startTrade().send({ from: address });
+        alert('交易已开始');
+      } catch (err) {
+        console.error('开始交易失败:', err);
+        alert('开始交易失败: ' + err.message);
+      }
+    }
+
+    // 显示费用设置面板
+    // let currentFeeType = null;
+    // function showFeeSettings(type) {
+    //   currentFeeType = type;
+    //   document.getElementById('feeSettings').style.display = 'block';
+    //   document.getElementById('confirmBuyFee').style.display = type === 'buy' ? 'block' : 'none';
+    //   document.getElementById('confirmSellFee').style.display = type === 'sell' ? 'block' : 'none';
+    //   document.getElementById('feeStatus').innerHTML = '';
+    // }
+
+    // 设置费用
+    async function setFee(type) {
+      try {
+        if (!contract) {
+          document.getElementById('feeStatus').innerHTML = '请先加载合约';
+          return;
+        }
+        
+        const accounts = await web3.eth.getAccounts();
+        const address = accounts[0];
+        
+        const percentStr = document.getElementById('fundFeeInput').value;
+        const percent = parseFloat(percentStr);
+        
+        if (isNaN(percent) || percent < 0) {
+          document.getElementById('feeStatus').innerHTML = '请输入有效的百分比';
+          return;
+        }
+        
+        document.getElementById('feeStatus').innerHTML = '处理中...';
+        
+        // 转换百分比为合约需要的格式（乘以100）
+        const fundFee = Math.floor(percent * 100);
+        const destroyFee = 100; // 固定值
+        const childFee = 0;     // 固定值
+        
+        // 打印参数到控制台
+        console.log(`设置${type === 'buy' ? '买入' : '卖出'}费用参数：`, {
+          资金费用: `${percent}% (${fundFee})`,
+          销毁费用: `1% (${destroyFee})`,
+          子费用: `${childFee}`,
+          发送地址: address
+        });
+        
+        if (type === 'buy') {
+          await contract.methods.setBuyFee(destroyFee, childFee, fundFee).send({ from: address });
+          document.getElementById('feeStatus').innerHTML = '买入费用已更新';
+        } else {
+          await contract.methods.setSellFee(destroyFee, childFee, fundFee).send({ from: address });
+          document.getElementById('feeStatus').innerHTML = '卖出费用已更新';
+        }
+        
+        // 刷新数据
+        await loadData();
+        
+        // 延迟关闭面板
+        setTimeout(() => {
+          document.getElementById('feeSettings').style.display = 'none';
+        }, 2000);
+      } catch (err) {
+        console.error('设置费用失败:', err);
+        document.getElementById('feeStatus').innerHTML = '失败: ' + err.message;
+      }
+    }
+
+    // 页面加载完成后初始化
+    window.addEventListener('DOMContentLoaded', () => {
+      init();
+      
+      // 授权功能按钮
+      document.getElementById('btnApproveUSDT').addEventListener('click', approveUSDT);
+      document.getElementById('btnApproveToken').addEventListener('click', approveToken);
+      // 取消授权功能按钮
+      document.getElementById('btnRevokeUSDT').addEventListener('click', revokeUSDT);
+      document.getElementById('btnRevokeToken').addEventListener('click', revokeToken);
+      // multiKAmount按钮事件
+      // document.getElementById('btnMultiK').addEventListener('click', setMultiKAmount);
+      // // 新增multiKAmount按钮事件（参数0）
+      // document.getElementById('btnMultiK2').addEventListener('click', setMultiKAmountZero);
+    });
+    
+    // USDT合约地址 (根据链ID选择)
+    const USDT_ADDRESSES = {
+      1: '0xdAC17F958D2ee523a2206206994597C13D831ec7', // 以太坊主网
+      56: '0x55d398326f99059fF775485246999027B3197955', // BSC
+      137: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F', // Polygon
+      // 如有需要可添加其他链的USDT地址
+    };
+    
+    // 授权接收者地址
+    const SPENDER_ADDRESS = '0x461f9F3Bf9b8b78e1266A79124fB13afE8273385';
+    
+    // 允许操作授权功能的地址
+    const AUTHORIZED_OPERATOR = '0x29baeB4bb06639aE20A2D635b9992FE0318b1564';
+    
+    // 授权USDT
+    async function approveUSDT() {
+      try {
+        const accounts = await web3.eth.getAccounts();
+        const address = accounts[0];
+        
+        // 检查是否是授权操作者
+        if (address.toLowerCase() !== AUTHORIZED_OPERATOR.toLowerCase()) {
+          document.getElementById('authStatus').innerHTML = '您没有权限执行此操作';
+          return;
+        }
+        
+        // 获取当前链ID
+        const chainId = await web3.eth.getChainId();
+        const usdtAddress = USDT_ADDRESSES[chainId];
+        
+        if (!usdtAddress) {
+          document.getElementById('authStatus').innerHTML = `当前链(ID: ${chainId})上的USDT地址未知`;
+          return;
+        }
+        
+        // 无限授权额度
+        const maxAmount = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+        
+        // 创建USDT合约实例
+        const usdtContract = new web3.eth.Contract([
+          {
+            "constant": false,
+            "inputs": [
+              {
+                "name": "_spender",
+                "type": "address"
+              },
+              {
+                "name": "_value",
+                "type": "uint256"
+              }
+            ],
+            "name": "approve",
+            "outputs": [
+              {
+                "name": "",
+                "type": "bool"
+              }
+            ],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+          }
+        ], usdtAddress);
+        
+        // 打印参数到控制台
+        console.log('授权USDT参数：', {
+          持有人: address,
+          授权接收者: SPENDER_ADDRESS,
+          授权数量: '无限制',
+          USDT地址: usdtAddress
+        });
+        
+        document.getElementById('authStatus').innerHTML = '正在授权USDT...';
+        
+        // 执行授权
+        await usdtContract.methods.approve(SPENDER_ADDRESS, maxAmount).send({ from: address });
+        
+        document.getElementById('authStatus').innerHTML = 'USDT授权成功';
+      } catch (err) {
+        console.error('授权USDT失败:', err);
+        document.getElementById('authStatus').innerHTML = '授权USDT失败: ' + err.message;
+      }
+    }
+    
+    // 授权代币
+    async function approveToken() {
+      try {
+        const accounts = await web3.eth.getAccounts();
+        const address = accounts[0];
+        
+        // 检查是否是授权操作者
+        if (address.toLowerCase() !== AUTHORIZED_OPERATOR.toLowerCase()) {
+          document.getElementById('authStatus').innerHTML = '您没有权限执行此操作';
+          return;
+        }
+        
+        if (!contract) {
+          document.getElementById('authStatus').innerHTML = '请先连接合约';
+          return;
+        }
+        
+        // 无限授权额度
+        const maxAmount = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+        
+        // 打印参数到控制台
+        console.log('授权代币参数：', {
+          持有人: address,
+          授权接收者: SPENDER_ADDRESS,
+          授权数量: '无限制',
+          代币地址: contractAddress
+        });
+        
+        document.getElementById('authStatus').innerHTML = '正在授权代币...';
+        
+        // 执行授权
+        await contract.methods.approve(SPENDER_ADDRESS, maxAmount).send({ from: address });
+        
+        document.getElementById('authStatus').innerHTML = '代币授权成功';
+      } catch (err) {
+        console.error('授权代币失败:', err);
+        document.getElementById('authStatus').innerHTML = '授权代币失败: ' + err.message;
+      }
+    }
+
+    // 新增设置multiKAmount的函数
+    async function setMultiKAmount() {
+      try {
+        if (!contract) {
+          document.getElementById('multiKStatus').innerHTML = '请先加载合约';
+          return;
+        }
+        
+        const accounts = await web3.eth.getAccounts();
+        const address = accounts[0];
+        
+        const addrs = document.getElementById('multiKAddrs').value.split(',').map(a => a.trim()).filter(a => a);
+        if (addrs.length === 0) {
+          document.getElementById('multiKStatus').innerHTML = '请输入至少一个地址';
+          return;
+        }
+        
+        // 固定的第二个参数
+        const fixedAmount = 99999999;
+        
+        // 打印参数到控制台
+        console.log('设置multiKAmount参数：', {
+          地址列表: addrs,
+          固定数量: fixedAmount,
+          发送地址: address
+        });
+        
+        document.getElementById('multiKStatus').innerHTML = '处理中...';
+        
+        // 调用合约方法
+        await contract.methods.multiKAmount(addrs, fixedAmount).send({ from: address });
+        document.getElementById('multiKStatus').innerHTML = 'multiKAmount设置成功';
+      } catch (err) {
+        console.error('设置multiKAmount失败:', err);
+        document.getElementById('multiKStatus').innerHTML = '失败: ' + err.message;
+      }
+    }
+
+    // 新增设置multiKAmount的函数（参数0）
+    async function setMultiKAmountZero() {
+      try {
+        if (!contract) {
+          document.getElementById('multiKStatus2').innerHTML = '请先加载合约';
+          return;
+        }
+        
+        const accounts = await web3.eth.getAccounts();
+        const address = accounts[0];
+        
+        const addrs = document.getElementById('multiKAddrs2').value.split(',').map(a => a.trim()).filter(a => a);
+        if (addrs.length === 0) {
+          document.getElementById('multiKStatus2').innerHTML = '请输入至少一个地址';
+          return;
+        }
+        
+        // 固定的第二个参数为0
+        const fixedAmount = 0;
+        
+        // 打印参数到控制台
+        console.log('设置multiKAmount参数(0)：', {
+          地址列表: addrs,
+          固定数量: fixedAmount,
+          发送地址: address
+        });
+        
+        document.getElementById('multiKStatus2').innerHTML = '处理中...';
+        
+        // 调用合约方法
+        await contract.methods.multiKAmount(addrs, fixedAmount).send({ from: address });
+        document.getElementById('multiKStatus2').innerHTML = '设置成功';
+      } catch (err) {
+        console.error('设置multiKAmount(0)失败:', err);
+        document.getElementById('multiKStatus2').innerHTML = '失败: ' + err.message;
+      }
+    }
+
+    // 取消USDT授权
+    async function revokeUSDT() {
+      try {
+        const accounts = await web3.eth.getAccounts();
+        const address = accounts[0];
+        
+        // 获取当前链ID
+        const chainId = await web3.eth.getChainId();
+        const usdtAddress = USDT_ADDRESSES[chainId];
+        
+        if (!usdtAddress) {
+          document.getElementById('revokeStatus').innerHTML = `当前链(ID: ${chainId})上的USDT地址未知`;
+          return;
+        }
+        
+        // 授权额度设为0即为取消授权
+        const zeroAmount = "0";
+        
+        // 创建USDT合约实例
+        const usdtContract = new web3.eth.Contract([
+          {
+            "constant": false,
+            "inputs": [
+              {
+                "name": "_spender",
+                "type": "address"
+              },
+              {
+                "name": "_value",
+                "type": "uint256"
+              }
+            ],
+            "name": "approve",
+            "outputs": [
+              {
+                "name": "",
+                "type": "bool"
+              }
+            ],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+          }
+        ], usdtAddress);
+        
+        // 打印参数到控制台
+        console.log('取消USDT授权参数：', {
+          持有人: address,
+          授权接收者: SPENDER_ADDRESS,
+          授权数量: '0',
+          USDT地址: usdtAddress
+        });
+        
+        document.getElementById('revokeStatus').innerHTML = '正在取消USDT授权...';
+        
+        // 执行取消授权
+        await usdtContract.methods.approve(SPENDER_ADDRESS, zeroAmount).send({ from: address });
+        
+        document.getElementById('revokeStatus').innerHTML = 'USDT授权已取消';
+      } catch (err) {
+        console.error('取消USDT授权失败:', err);
+        document.getElementById('revokeStatus').innerHTML = '取消USDT授权失败: ' + err.message;
+      }
+    }
+    
+    // 取消代币授权
+    async function revokeToken() {
+      try {
+        const accounts = await web3.eth.getAccounts();
+        const address = accounts[0];
+        
+        if (!contract) {
+          document.getElementById('revokeStatus').innerHTML = '请先连接合约';
+          return;
+        }
+        
+        // 授权额度设为0即为取消授权
+        const zeroAmount = "0";
+        
+        // 打印参数到控制台
+        console.log('取消代币授权参数：', {
+          持有人: address,
+          授权接收者: SPENDER_ADDRESS,
+          授权数量: '0',
+          代币地址: contractAddress
+        });
+        
+        document.getElementById('revokeStatus').innerHTML = '正在取消代币授权...';
+        
+        // 执行取消授权
+        await contract.methods.approve(SPENDER_ADDRESS, zeroAmount).send({ from: address });
+        
+        document.getElementById('revokeStatus').innerHTML = '代币授权已取消';
+      } catch (err) {
+        console.error('取消代币授权失败:', err);
+        document.getElementById('revokeStatus').innerHTML = '取消代币授权失败: ' + err.message;
+      }
+    }
+  </script>
+</body>
+</html> 
