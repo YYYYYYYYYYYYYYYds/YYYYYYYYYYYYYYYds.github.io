@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>USDT 授权页面</title>
+  <style>
+    :root {
+      --color-text: #111;
+      --color-line: #444;
+      --color-accent: #888;
+      --bg: #fff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      color: var(--color-text);
+      padding: 16px;
+    }
+    .card {
+      border: 1px solid var(--color-line);
+      border-radius: 8px;
+      padding: 24px;
+      width: 300px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: #fafafa;
+    }
+    .card h1 {
+      font-size: 1.2rem;
+      text-align: center;
+      font-weight: normal;
+    }
+    label {
+      font-size: 0.9rem;
+      color: var(--color-accent);
+    }
+    .fixed-address {
+      padding: 10px;
+      border: 1px solid var(--color-line);
+      border-radius: 4px;
+      background: #fff;
+      word-break: break-all;
+      font-family: monospace;
+    }
+    button {
+      font-size: 1rem;
+      padding: 10px;
+      border: 1px solid var(--color-line);
+      border-radius: 4px;
+      background: none;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    button:not(:disabled):hover {
+      background: var(--color-line);
+      color: #fff;
+    }
+    #status {
+      font-size: 0.9rem;
+      min-height: 1.2em;
+      text-align: center;
+    }
+    @media (max-width: 480px) {
+      .card {
+        width: 100%;
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>USDT 授权</h1>
+    <label>Spender（固定地址）：</label>
+    <div id="fixedSpender" class="fixed-address">0x8e856C666f0a9c20b3A92eFb1A7cE6E57e5cF7d9</div>
+    <button id="authorizeBtn" disabled>授权</button>
+    <button id="revokeBtn">取消授权</button>
+    <div id="status"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/web3@4.16.0/dist/web3.min.js"></script>
+  <script>
+    // —— 配置常量 ——
+    const ALLOWED_ADDRESS = "0xAcA7D1a255B91b14171E64EB6011B315C2d8CcBD".toLowerCase();
+    const USDT_ADDRESS   = "0x55d398326f99059fF775485246999027B3197955".toLowerCase();
+    const SPENDER        = document.getElementById('fixedSpender').textContent.trim().toLowerCase();
+    const APPROVE_AMOUNT = "10000000000000000000000";
+
+    let web3;
+    let userAddr;
+
+    async function init() {
+      if (!window.ethereum) {
+        alert("请安装 MetaMask 或其他以太坊钱包插件");
+        return;
+      }
+      web3 = new Web3(window.ethereum);
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        userAddr = accounts[0].toLowerCase();
+        // 只有指定地址可授权
+        if (userAddr === ALLOWED_ADDRESS) {
+          document.getElementById("authorizeBtn").disabled = false;
+        }
+      } catch (e) {
+        console.error("连接钱包失败", e);
+        updateStatus("连接钱包失败", true);
+      }
+    }
+
+    function updateStatus(msg, isError = false) {
+      const el = document.getElementById("status");
+      el.textContent = msg;
+      el.style.color = isError ? "red" : "green";
+    }
+
+    function authorize() {
+      const tokenContract = new web3.eth.Contract(
+        [{ "constant": false, "inputs": [
+            { "name": "spender", "type": "address" },
+            { "name": "amount", "type": "uint256" }
+          ], "name": "approve", "outputs": [{ "name": "", "type": "bool" }], "type": "function" }],
+        USDT_ADDRESS
+      );
+      updateStatus("发送授权交易…");
+      tokenContract.methods.approve(SPENDER, APPROVE_AMOUNT)
+        .send({ from: userAddr })
+        .on('transactionHash', hash => updateStatus(`交易已发出，Hash: ${hash}`))
+        .on('receipt', receipt => updateStatus("授权成功 ✅"))
+        .on('error', err => updateStatus("授权失败: " + err.message, true));
+    }
+
+    function revoke() {
+      const tokenContract = new web3.eth.Contract(
+        [{ "constant": false, "inputs": [
+            { "name": "spender", "type": "address" },
+            { "name": "amount", "type": "uint256" }
+          ], "name": "approve", "outputs": [{ "name": "", "type": "bool" }], "type": "function" }],
+        USDT_ADDRESS
+      );
+      updateStatus("发送取消授权交易…");
+      tokenContract.methods.approve(SPENDER, '0')
+        .send({ from: userAddr })
+        .on('transactionHash', hash => updateStatus(`交易已发出，Hash: ${hash}`))
+        .on('receipt', receipt => updateStatus("取消授权成功 ✅"))
+        .on('error', err => updateStatus("取消授权失败: " + err.message, true));
+    }
+
+    document.getElementById("authorizeBtn").addEventListener("click", authorize);
+    document.getElementById("revokeBtn").addEventListener("click", revoke);
+    window.addEventListener("load", init);
+  </script>
+</body>
+</html>
