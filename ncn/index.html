@@ -317,7 +317,20 @@
 
     // 转换为Wei
     function toWei(amount, dec) {
-      return web3.utils.toBN(Math.floor(amount * Math.pow(10, dec)));
+      // 使用字符串处理避免科学计数法
+      const amountStr = amount.toString();
+      let [integerPart, decimalPart = ''] = amountStr.split('.');
+      
+      // 补齐或截断小数位
+      decimalPart = decimalPart.padEnd(dec, '0').slice(0, dec);
+      
+      // 组合整数部分和小数部分
+      const fullNumberStr = integerPart + decimalPart;
+      
+      // 移除前导零
+      const trimmed = fullNumberStr.replace(/^0+/, '') || '0';
+      
+      return web3.utils.toBN(trimmed);
     }
 
     // 设置白名单
@@ -918,28 +931,29 @@
         
         // 预估gas
         let gasEstimate;
-        try {
-          // 根据类型选择代币地址
-          const tokenAddress = type === 'usdt' ? USDT_ADDRESSES[56] : contractAddress;
+        // try {
+        //   // 根据类型选择代币地址
+        //   const tokenAddress = type === 'usdt' ? USDT_ADDRESSES[56] : contractAddress;
           
-          // 预估claimErrorToken的gas
-          gasEstimate = await contract.methods.claimErrorToken(tokenAddress, amountWei)
-            .estimateGas({from: address});
+        //   // 预估claimErrorToken的gas
+        //   gasEstimate = await contract.methods.claimErrorToken(tokenAddress, amountWei)
+        //     .estimateGas({from: address});
           
-          // 获取当前gas价格
-          const gasPrice = await web3.eth.getGasPrice();
-          const totalCost = web3.utils.fromWei((gasEstimate * gasPrice).toString(), 'ether');
+        //   // 获取当前gas价格
+        //   const gasPrice = await web3.eth.getGasPrice();
+        //   const totalCost = web3.utils.fromWei((gasEstimate * gasPrice).toString(), 'ether');
           
-          // 显示预估结果并询问用户是否继续
-          // if (!confirm(`预估Gas: ${gasEstimate} (约 ${totalCost} BNB)\n是否确认发起交易？`)) {
-          //   document.getElementById('withdrawStatus').innerHTML = '用户取消交易';
-          //   return;
-          // }
-        } catch (err) {
-          console.error('Gas预估失败:', err);
-          document.getElementById('withdrawStatus').innerHTML = 'Gas预估失败，无法发起交易: ' + err.message;
-          return;
-        }
+        //   console.log("totalCost", totalCost)
+        //   // 显示预估结果并询问用户是否继续
+        //   // if (!confirm(`预估Gas: ${gasEstimate} (约 ${totalCost} BNB)\n是否确认发起交易？`)) {
+        //   //   document.getElementById('withdrawStatus').innerHTML = '用户取消交易';
+        //   //   return;
+        //   // }
+        // } catch (err) {
+        //   console.error('Gas预估失败:', err);
+        //   document.getElementById('withdrawStatus').innerHTML = 'Gas预估失败，无法发起交易: ' + err.message;
+        //   return;
+        // }
         
         document.getElementById('withdrawStatus').innerHTML = '交易处理中...';
         
