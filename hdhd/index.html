@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>HD黑洞数据</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles623124.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <nav class="lottery-navbar">
+        <div class="lottery-nav-container">
+            <div class="lottery-nav-brand">
+                <img src="tokenLogo.png" alt="Token Logo" class="lottery-nav-logo">
+                <p>HD黑洞盲盒</p>
+            </div>
+            <div class="lottery-nav-actions">
+                <button class="lottery-btn lottery-btn-primary" id="connectWallet">
+                    <i class="fas fa-wallet"></i>
+                    连接MetaMask
+                </button>
+                <button class="lottery-btn lottery-btn-secondary" id="refreshData">
+                    <i class="fas fa-sync-alt"></i>
+                    刷新数据
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <main class="lottery-main-content">
+        <!-- 页面标题 -->
+        <section class="lottery-page-header">
+            <h1 class="lottery-page-title">
+                <span class="lottery-title-main">黑洞盲盒数据查询</span>
+                <span class="lottery-title-sub">数据来源币安官链</span>
+            </h1>
+        </section>
+        
+        <!-- 转账板块 -->
+        <section class="lottery-transfer-section">
+            <div class="lottery-transfer-container">
+                <div class="lottery-transfer-header">
+                    <h2 class="lottery-transfer-title">
+                        <i class="fas fa-paper-plane"></i>
+                        参与黑洞盲盒
+                    </h2>
+                    <p class="lottery-transfer-subtitle">向黑洞地址转账参与盲盒</p>
+                </div>
+                
+                <div class="lottery-transfer-content">
+                    <!-- 余额显示 -->
+                    <div class="lottery-balance-section">
+                        <div class="lottery-balance-card">
+                            <div class="lottery-balance-icon">
+                                <i class="fab fa-ethereum"></i>
+                            </div>
+                            <div class="lottery-balance-info">
+                                <div class="lottery-balance-label">BNB余额</div>
+                                <div class="lottery-balance-value" id="bnbBalance">0.00</div>
+                            </div>
+                        </div>
+                        
+                        <div class="lottery-balance-card">
+                            <div class="lottery-balance-icon">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <div class="lottery-balance-info">
+                                <div class="lottery-balance-label">HD余额</div>
+                                <div class="lottery-balance-value" id="hdBalance">0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 转账操作 -->
+                    <div class="lottery-transfer-operation">
+                        <div class="lottery-input-group">
+                            <!-- <label class="lottery-input-label">
+                                <i class="fas fa-calculator"></i>
+                                立即参与
+                            </label> -->
+                            <div class="lottery-input-wrapper">
+                                <input type="number" 
+                                       id="transferAmount" 
+                                       placeholder="请输入转账数量" 
+                                       class="lottery-transfer-input"
+                                       min="1"
+                                       step="1">
+                                <span class="lottery-input-unit">HD</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 盲盒号码显示 -->
+                        <div class="lottery-lucky-number" id="luckyNumberDisplay" style="display: none;">
+                            <div class="lottery-lucky-icon">
+                                <i class="fas fa-dice"></i>
+                            </div>
+                            <div class="lottery-lucky-info">
+                                <div class="lottery-lucky-label">盲盒号码</div>
+                                <div class="lottery-lucky-value" id="luckyNumber">0</div>
+                                <div class="lottery-lucky-type" id="luckyType">(单数)</div>
+                            </div>
+                        </div>
+                        
+                        <!-- 转账详情 -->
+                        <!-- <div class="lottery-transfer-details">
+                            <div class="lottery-detail-row">
+                                <span class="lottery-detail-label">接收地址：</span>
+                                <span class="lottery-detail-value lottery-dead-address">0x000000000000000000000000000000000000dead</span>
+                            </div>
+                            <div class="lottery-detail-row">
+                                <span class="lottery-detail-label">Gas Limit：</span>
+                                <span class="lottery-detail-value">2,000,000</span>
+                            </div>
+                            <div class="lottery-detail-row">
+                                <span class="lottery-detail-label">Gas Price：</span>
+                                <span class="lottery-detail-value">0.2 Gwei</span>
+                            </div>
+                        </div> -->
+                        
+                        <!-- 转账按钮 -->
+                        <button class="lottery-transfer-btn" id="transferBtn" disabled>
+                            <i class="fas fa-paper-plane"></i>
+                            立即参与
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 统计面板 -->
+        <section class="lottery-stats-section">
+            <div class="lottery-stats-grid">
+                <div class="lottery-stat-card">
+                    <div class="lottery-stat-icon">
+                        <i class="fas fa-ticket-alt"></i>
+                    </div>
+                    <div class="lottery-stat-content">
+                        <div class="lottery-stat-number" id="totalLotteries">0</div>
+                        <div class="lottery-stat-label">参与次数</div>
+                        <div class="lottery-stat-unit">次</div>
+                    </div>
+                </div>
+                <div class="lottery-stat-card">
+                    <div class="lottery-stat-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="lottery-stat-content">
+                        <div class="lottery-stat-number" id="tokenToLpReward">0</div>
+                        <div class="lottery-stat-label">分红代币</div>
+                        <div class="lottery-stat-unit">HD</div>
+                    </div>
+                </div>
+                <div class="lottery-stat-card">
+                    <div class="lottery-stat-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="lottery-stat-content">
+                        <div class="lottery-stat-number" id="tokenToUser">0</div>
+                        <div class="lottery-stat-label">抽中代币</div>
+                        <div class="lottery-stat-unit">HD</div>
+                    </div>
+                </div>
+                <div class="lottery-stat-card">
+                    <div class="lottery-stat-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="lottery-stat-content">
+                        <div class="lottery-stat-number" id="tokenToBurn">0</div>
+                        <div class="lottery-stat-label">销毁代币</div>
+                        <div class="lottery-stat-unit">HD</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 总真实统计卡片 -->
+        <section class="lottery-total-stats-section">
+            <div class="lottery-total-stats-grid">
+                <div class="lottery-total-stat-card">
+                    <div class="lottery-total-stat-content">
+                        <div class="lottery-total-stat-icon">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div class="lottery-total-stat-info">
+                            <div class="lottery-total-stat-main">
+                                <span class="lottery-total-stat-label">总盲盒销毁： </span>
+                                <span class="lottery-total-stat-number" id="realBurnAmount">0</span>
+                                <span class="lottery-total-stat-unit">HD</span>
+                            </div>
+                            <div class="lottery-total-stat-formula" id="formulaExample">
+                                计算公式： 盲盒销毁 - (抽中 + 分红) ÷ 2
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="lottery-total-stat-card">
+                    <div class="lottery-total-stat-content">
+                        <div class="lottery-total-stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="lottery-total-stat-info">
+                            <div class="lottery-total-stat-main">
+                                <span class="lottery-total-stat-label">总真实流通：</span>
+                                <span class="lottery-total-stat-number" id="totalRealCirculation">0</span>
+                                <span class="lottery-total-stat-unit">HD</span>
+                            </div>
+                            <div class="lottery-total-stat-formula">
+                                计算公式： 总发行量-黑洞总币量-池子的币
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="lottery-total-stat-card">
+                    <div class="lottery-total-stat-content">
+                        <div class="lottery-total-stat-icon">
+                            <i class="fas fa-fire-alt"></i>
+                        </div>
+                        <div class="lottery-total-stat-info">
+                            <div class="lottery-total-stat-main">
+                                <span class="lottery-total-stat-label">总全部销毁：</span>
+                                <span class="lottery-total-stat-number" id="totalRealBurn">0</span>
+                                <span class="lottery-total-stat-unit">HD</span>
+                            </div>
+                            <div class="lottery-total-stat-formula">
+                                计算公式： 总发行量 - 总真实流通
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 查询和筛选 -->
+        <section class="lottery-filter-section">
+            <div class="lottery-mobile-filter-container">
+                <!-- 搜索框 -->
+                <div class="lottery-search-group">
+                    <div class="lottery-search-input-wrapper">
+                        <i class="fas fa-search lottery-search-icon"></i>
+                        <input type="text" id="userSearch" placeholder="搜索地址或ID" class="lottery-mobile-search-input">
+                        <input type="number" id="lotteryIdSearch" placeholder="黑洞盲盒ID" class="lottery-mobile-search-input" style="display: none;">
+                    </div>
+                </div>
+                
+                <!-- 筛选标签 -->
+                <!-- <div class="lottery-filter-tags">
+                    <button class="lottery-filter-tag active" data-filter="all">
+                        <i class="fas fa-list"></i>
+                        全部记录
+                    </button>
+                    <button class="lottery-filter-tag" data-filter="winners">
+                        <i class="fas fa-trophy"></i>
+                        抽中记录
+                    </button>
+                    <button class="lottery-filter-tag" data-filter="losers">
+                        <i class="fas fa-fire"></i>
+                        销毁记录
+                    </button>
+                </div> -->
+                
+                <!-- 操作按钮 -->
+                <div class="lottery-filter-actions-mobile">
+                    <button class="lottery-mobile-btn lottery-search-btn" id="searchBtn">
+                        <i class="fas fa-search"></i>
+                        搜索
+                    </button>
+                    <button class="lottery-mobile-btn lottery-my-records-btn" id="myRecordsBtn" style="display: none;">
+                        <i class="fas fa-user"></i>
+                        搜索我的记录
+                    </button>
+                    <button class="lottery-mobile-btn lottery-clear-btn" id="clearBtn">
+                        <i class="fas fa-times"></i>
+                        清空
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 抽奖记录表格 -->
+        <section class="lottery-records-section">
+            <div class="lottery-section-header">
+                <h2>
+                    <i class="fas fa-list"></i>
+                    黑洞盲盒记录
+                </h2>
+                <div class="lottery-section-actions">
+                    <span class="lottery-records-count">共 <span id="recordsCount">0</span> 条记录</span>
+                </div>
+            </div>
+            
+            <!-- 表格容器 -->
+            <div class="lottery-table-container">
+                <!-- 移动端卡片视图 -->
+                <div class="lottery-mobile-records-container" id="mobileRecordsContainer">
+                    <!-- 记录卡片将通过JavaScript动态加载 -->
+                </div>
+                
+                <!-- 桌面端表格视图（隐藏） -->
+                <table class="lottery-records-table lottery-desktop-only" id="recordsTable" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>黑洞盲盒ID</th>
+                            <th>用户地址</th>
+                            <th>参与金额</th>
+                            <th>抽奖号码</th>
+                            <th>参与时间</th>
+                            <th>开奖区块</th>
+                            <th>区块哈希</th>
+                            <th>抽中状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recordsBody">
+                        <!-- 数据将通过JavaScript动态加载 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 分页控件 -->
+            <div class="lottery-pagination-container">
+                <div class="lottery-pagination-info">
+                    第 <span id="currentPage">1</span> 页，共 <span id="totalPages">1</span> 页
+                </div>
+                <div class="lottery-pagination-controls">
+                    <button class="lottery-btn lottery-btn-sm" id="prevPage" disabled>
+                        <i class="fas fa-chevron-left"></i>
+                        上一页
+                    </button>
+                    <button class="lottery-btn lottery-btn-sm" id="nextPage">
+                        下一页
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 加载提示 -->
+    <div class="lottery-loading-overlay" id="loadingOverlay">
+        <div class="lottery-loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>正在加载数据...</p>
+        </div>
+    </div>
+
+    <!-- 详情模态框 -->
+    <div class="lottery-modal-overlay" id="detailModal">
+        <div class="lottery-modal-content">
+            <div class="lottery-modal-header">
+                <h3>参与详情</h3>
+                <button class="lottery-modal-close" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="lottery-modal-body" id="modalBody">
+                <!-- 详细信息将通过JavaScript动态加载 -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.2.0/dist/ethers.umd.min.js"></script>
+
+
+    <script src="config.obf.js"></script>
+    <!-- <script src="app.obf.622219.js"></script> -->
+    <!-- <script src="app.obf.6221946.js"></script> -->
+    <script src="app.obf.623111.js"></script>
+</body>
+</html> 

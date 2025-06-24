@@ -1,0 +1,2717 @@
+/* 基础重置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    background: #08060B;
+    color: #F4EEFF;
+    min-height: 100vh;
+    line-height: 1.6;
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+:root {
+    /* 主色调 */
+    --primary-bg: #08060B;
+    --secondary-bg: #13111C;
+    --card-bg: #1E1D20;
+    --border-color: #383241;
+    
+    /* 文字颜色 */
+    --text-primary: #F4EEFF;
+    --text-secondary: #B8ADD2;
+    --text-muted: #6C5CE7;
+    
+    /* 品牌颜色 */
+    --pancake-primary: #1FC7D4;
+    --pancake-secondary: #7645D9;
+    --pancake-warning: #FFB237;
+    --pancake-success: #31D0AA;
+    --pancake-danger: #ED4B9E;
+    
+    /* 渐变 */
+    --gradient-primary: linear-gradient(135deg, #1FC7D4 0%, #7645D9 100%);
+    --gradient-secondary: linear-gradient(135deg, #7645D9 0%, #452A7A 100%);
+    --gradient-success: linear-gradient(135deg, #31D0AA 0%, #00B8A2 100%);
+    --gradient-warning: linear-gradient(135deg, #FFB237 0%, #F0B90B 100%);
+    --gradient-danger: linear-gradient(135deg, #ED4B9E 0%, #D63A87 100%);
+}
+
+/* ===========================================
+   导航栏样式
+   =========================================== */
+.lottery-navbar {
+    background: var(--secondary-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(20px);
+}
+
+.lottery-nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1.5rem;
+}
+
+.lottery-nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.lottery-nav-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    filter: drop-shadow(0 0 8px rgba(31, 199, 212, 0.4));
+    transition: all 0.3s ease;
+}
+
+.lottery-nav-logo:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 12px rgba(31, 199, 212, 0.6));
+}
+
+.lottery-nav-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+/* ===========================================
+   按钮系统
+   =========================================== */
+.lottery-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.lottery-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.lottery-btn:hover::before {
+    left: 100%;
+}
+
+.lottery-btn-primary {
+    background: var(--gradient-primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(31, 199, 212, 0.3);
+}
+
+.lottery-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(31, 199, 212, 0.4);
+}
+
+.lottery-btn-secondary {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.lottery-btn-secondary:hover {
+    background: var(--secondary-bg);
+    border-color: var(--pancake-primary);
+    transform: translateY(-2px);
+}
+
+.lottery-btn-success {
+    background: var(--gradient-success);
+    color: white;
+}
+
+.lottery-btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    border-radius: 12px;
+}
+
+.lottery-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* ===========================================
+   主要内容布局
+   =========================================== */
+.lottery-main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+/* ===========================================
+   页面标题
+   =========================================== */
+.lottery-page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+    background: linear-gradient(135deg, rgba(31, 199, 212, 0.05) 0%, rgba(118, 69, 217, 0.05) 100%);
+    border-radius: 24px;
+    border: 1px solid rgba(31, 199, 212, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.lottery-page-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(31, 199, 212, 0.1), transparent);
+    animation: lottery-page-shine 3s ease-in-out infinite;
+}
+
+@keyframes lottery-page-shine {
+    0% { left: -100%; }
+    50% { left: 100%; }
+    100% { left: 100%; }
+}
+
+.lottery-page-title {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.lottery-title-main {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+}
+
+.lottery-title-sub {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+}
+
+/* ===========================================
+   转账板块样式
+   =========================================== */
+.lottery-transfer-section {
+    margin-bottom: 2rem;
+}
+
+.lottery-transfer-container {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.lottery-transfer-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-primary);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.lottery-transfer-container:hover::before {
+    transform: scaleX(1);
+}
+
+.lottery-transfer-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.lottery-transfer-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.lottery-transfer-title i {
+    color: var(--pancake-primary);
+    font-size: 1.5rem;
+}
+
+.lottery-transfer-subtitle {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.lottery-transfer-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    align-items: start;
+}
+
+/* 余额显示区域 */
+.lottery-balance-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.lottery-balance-card {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.lottery-balance-card:hover {
+    border-color: var(--pancake-primary);
+    transform: translateY(-2px);
+}
+
+.lottery-balance-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    background: var(--gradient-primary);
+    color: white;
+    flex-shrink: 0;
+}
+
+.lottery-balance-card:nth-child(2) .lottery-balance-icon {
+    background: var(--gradient-secondary);
+}
+
+.lottery-balance-info {
+    flex: 1;
+}
+
+.lottery-balance-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.lottery-balance-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+/* 转账操作区域 */
+.lottery-transfer-operation {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 1.5rem;
+}
+
+.lottery-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.lottery-input-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.lottery-input-label i {
+    color: var(--pancake-primary);
+    font-size: 1rem;
+}
+
+.lottery-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.lottery-transfer-input {
+    width: 100%;
+    padding: 1.25rem 4rem 1.25rem 1.25rem;
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 16px;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.lottery-transfer-input:focus {
+    outline: none;
+    border-color: var(--pancake-primary);
+    box-shadow: 0 0 0 4px rgba(31, 199, 212, 0.15);
+    transform: translateY(-2px);
+}
+
+.lottery-input-unit {
+    position: absolute;
+    right: 1.25rem;
+    color: var(--pancake-primary);
+    font-size: 1rem;
+    font-weight: 700;
+    pointer-events: none;
+}
+
+.lottery-input-hint {
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    background: linear-gradient(135deg, rgba(31, 199, 212, 0.1) 0%, rgba(118, 69, 217, 0.1) 100%);
+    border: 1px solid rgba(31, 199, 212, 0.2);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    margin-top: 0.25rem;
+}
+
+.lottery-input-hint #luckyNumber {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin: 0 0.25rem;
+}
+
+.lottery-input-hint #luckyType {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* 盲盒号码显示 */
+.lottery-lucky-number {
+    background: linear-gradient(135deg, rgba(31, 199, 212, 0.1) 0%, rgba(118, 69, 217, 0.1) 100%);
+    border: 1px solid rgba(31, 199, 212, 0.3);
+    border-radius: 16px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    animation: lottery-lucky-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes lottery-lucky-glow {
+    from {
+        box-shadow: 0 0 10px rgba(31, 199, 212, 0.2);
+    }
+    to {
+        box-shadow: 0 0 20px rgba(31, 199, 212, 0.4);
+    }
+}
+
+.lottery-lucky-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    background: var(--gradient-primary);
+    color: white;
+    flex-shrink: 0;
+}
+
+.lottery-lucky-info {
+    flex: 1;
+}
+
+.lottery-lucky-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.lottery-lucky-value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    display: inline;
+}
+
+.lottery-lucky-type {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline;
+    margin-left: 0.5rem;
+}
+
+/* 转账详情 */
+.lottery-transfer-details {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.lottery-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.lottery-detail-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.lottery-detail-value {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.lottery-dead-address {
+    color: var(--pancake-danger);
+    font-size: 0.8rem;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 转账按钮 */
+.lottery-transfer-btn {
+    width: 100%;
+    padding: 1.25rem;
+    background: var(--gradient-primary);
+    border: none;
+    border-radius: 20px;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    position: relative;
+    overflow: hidden;
+    margin-top: 0rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.lottery-transfer-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.lottery-transfer-btn:hover::before {
+    left: 100%;
+}
+
+.lottery-transfer-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(31, 199, 212, 0.3);
+}
+
+.lottery-transfer-btn:disabled {
+    background: var(--secondary-bg);
+    color: var(--text-muted);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.lottery-transfer-btn:disabled::before {
+    display: none;
+}
+
+/* ===========================================
+   统计面板
+   =========================================== */
+.lottery-stats-section {
+    margin-bottom: 3rem;
+}
+
+.lottery-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.lottery-stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.lottery-stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--gradient-primary);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.lottery-stat-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--pancake-primary);
+    box-shadow: 0 12px 40px -8px rgba(31, 199, 212, 0.2);
+}
+
+.lottery-stat-card:hover::before {
+    transform: scaleX(1);
+}
+
+.lottery-stat-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    background: var(--gradient-primary);
+    color: white;
+    flex-shrink: 0;
+}
+
+.lottery-stat-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.lottery-stat-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.25rem;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+}
+
+.lottery-stat-label {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.lottery-stat-unit {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* ===========================================
+   真实销毁板块
+   =========================================== */
+.lottery-burn-section {
+    margin-bottom: 2rem;
+}
+
+.lottery-burn-container {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.lottery-burn-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-danger);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.lottery-burn-container:hover::before {
+    transform: scaleX(1);
+}
+
+.lottery-burn-header {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.lottery-burn-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.lottery-burn-title i {
+    color: var(--pancake-danger);
+    font-size: 1.25rem;
+    animation: lottery-burn-pulse 2s ease-in-out infinite;
+}
+
+@keyframes lottery-burn-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.lottery-burn-content {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+    align-items: center;
+}
+
+.lottery-burn-result {
+    text-align: center;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(237, 75, 158, 0.1) 0%, rgba(255, 178, 55, 0.1) 100%);
+    border-radius: 16px;
+    border: 1px solid rgba(237, 75, 158, 0.2);
+}
+
+.lottery-burn-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.25rem;
+    background: var(--gradient-danger);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+}
+
+.lottery-burn-label {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.lottery-burn-unit {
+    color: var(--pancake-danger);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.lottery-burn-formula {
+    background: var(--secondary-bg);
+    padding: 1.5rem;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+}
+
+.lottery-formula-title {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.lottery-formula-content {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: var(--card-bg);
+    border-radius: 10px;
+    text-align: center;
+}
+
+.lottery-formula-example {
+    color: var(--pancake-warning);
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    text-align: center;
+    padding: 0.75rem;
+    background: rgba(255, 178, 55, 0.1);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 178, 55, 0.3);
+}
+
+/* ===========================================
+   总真实统计卡片
+   =========================================== */
+.lottery-total-stats-section {
+    margin-bottom: 2rem;
+}
+
+.lottery-total-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+.lottery-total-stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 1.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.lottery-total-stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-primary);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.lottery-total-stat-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--pancake-primary);
+    box-shadow: 0 12px 40px -8px rgba(31, 199, 212, 0.2);
+}
+
+.lottery-total-stat-card:hover::before {
+    transform: scaleX(1);
+}
+
+.lottery-total-stat-content {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.lottery-total-stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    background: var(--gradient-primary);
+    color: white;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.lottery-total-stat-icon i {
+    position: relative;
+    z-index: 1;
+}
+
+.lottery-total-stat-icon::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 16px;
+    background: var(--gradient-primary);
+    opacity: 0.8;
+    z-index: 0;
+    animation: lottery-stat-glow 3s ease-in-out infinite alternate;
+}
+
+@keyframes lottery-stat-glow {
+    from {
+        box-shadow: 0 0 10px rgba(31, 199, 212, 0.4);
+    }
+    to {
+        box-shadow: 0 0 20px rgba(31, 199, 212, 0.8);
+    }
+}
+
+.lottery-total-stat-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.lottery-total-stat-main {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    flex-wrap: nowrap;
+    overflow: hidden;
+}
+
+.lottery-total-stat-label {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-weight: 600;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.lottery-total-stat-number {
+    font-size: 2rem;
+    font-weight: 800;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lottery-total-stat-unit {
+    color: var(--text-muted);
+    font-size: 1rem;
+    font-weight: 500;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.lottery-total-stat-formula {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.3;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 特殊图标样式 */
+/* 第一个卡片: fas fa-fire - 红色 */
+.lottery-total-stat-card:nth-child(1) .lottery-total-stat-icon {
+    background: var(--gradient-danger);
+}
+
+.lottery-total-stat-card:nth-child(1) .lottery-total-stat-icon::before {
+    background: var(--gradient-danger);
+    animation: lottery-burn-stat-glow 3s ease-in-out infinite alternate;
+}
+
+.lottery-total-stat-card:nth-child(1) .lottery-total-stat-number {
+    background: var(--gradient-danger);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* 第二个卡片: fas fa-chart-line - 绿色 (总真实流通) */
+.lottery-total-stat-card:nth-child(2) .lottery-total-stat-icon {
+    background: var(--gradient-success);
+}
+
+.lottery-total-stat-card:nth-child(2) .lottery-total-stat-icon::before {
+    background: var(--gradient-success);
+    animation: lottery-circulation-glow 3s ease-in-out infinite alternate;
+}
+
+.lottery-total-stat-card:nth-child(2) .lottery-total-stat-number {
+    background: var(--gradient-success);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* 第三个卡片: fas fa-fire-alt - 红色 (总全部销毁) */
+.lottery-total-stat-card:nth-child(3) .lottery-total-stat-icon {
+    background: var(--gradient-danger);
+}
+
+.lottery-total-stat-card:nth-child(3) .lottery-total-stat-icon::before {
+    background: var(--gradient-danger);
+    animation: lottery-burn-stat-glow 3s ease-in-out infinite alternate;
+}
+
+.lottery-total-stat-card:nth-child(3) .lottery-total-stat-number {
+    background: var(--gradient-danger);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+@keyframes lottery-circulation-glow {
+    from {
+        box-shadow: 0 0 10px rgba(49, 208, 170, 0.4);
+    }
+    to {
+        box-shadow: 0 0 20px rgba(49, 208, 170, 0.8);
+    }
+}
+
+@keyframes lottery-burn-stat-glow {
+    from {
+        box-shadow: 0 0 10px rgba(237, 75, 158, 0.4);
+    }
+    to {
+        box-shadow: 0 0 20px rgba(237, 75, 158, 0.8);
+    }
+}
+
+/* ===========================================
+   筛选区域 - 移动优先设计
+   =========================================== */
+.lottery-filter-section {
+    margin-bottom: 3rem;
+}
+
+.lottery-mobile-filter-container {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 100%;
+}
+
+.lottery-search-group {
+    width: 100%;
+}
+
+.lottery-search-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.lottery-search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+.lottery-mobile-search-input {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3rem;
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.lottery-mobile-search-input:focus {
+    outline: none;
+    border-color: var(--pancake-primary);
+    box-shadow: 0 0 0 3px rgba(31, 199, 212, 0.1);
+}
+
+.lottery-mobile-search-input::placeholder {
+    color: var(--text-muted);
+}
+
+.lottery-filter-tags {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    justify-content: space-between;
+}
+
+.lottery-filter-tag {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.75rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    flex: 1;
+    justify-content: center;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.lottery-filter-tag:hover {
+    border-color: var(--pancake-primary);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
+.lottery-filter-tag.active {
+    background: var(--gradient-primary);
+    border-color: transparent;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(31, 199, 212, 0.3);
+}
+
+.lottery-filter-actions-mobile {
+    display: flex;
+    gap: 1rem;
+}
+
+.lottery-mobile-btn {
+    flex: 1;
+    padding: 1rem;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.lottery-search-btn {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+.lottery-search-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(31, 199, 212, 0.3);
+}
+
+.lottery-clear-btn {
+    background: var(--card-bg);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.lottery-clear-btn:hover {
+    background: var(--secondary-bg);
+    color: var(--text-primary);
+    border-color: var(--pancake-danger);
+}
+
+.lottery-my-records-btn {
+    background: var(--gradient-secondary);
+    color: white;
+}
+
+.lottery-my-records-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(118, 69, 217, 0.3);
+}
+
+/* ===========================================
+   记录区域
+   =========================================== */
+.lottery-records-section {
+    margin-bottom: 3rem;
+}
+
+.lottery-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.lottery-section-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.lottery-section-header i {
+    color: var(--pancake-primary);
+    font-size: 1.5rem;
+}
+
+.lottery-records-count {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    background: var(--card-bg);
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.lottery-table-container {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    overflow: hidden;
+    min-height: 400px;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* ===========================================
+   移动端卡片样式
+   =========================================== */
+.lottery-mobile-records-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.5rem;
+}
+
+.lottery-record-card {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.lottery-record-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-primary);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.lottery-record-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--pancake-primary);
+    box-shadow: 0 12px 32px -8px rgba(31, 199, 212, 0.15);
+}
+
+.lottery-record-card:hover::before {
+    transform: scaleX(1);
+}
+
+.lottery-record-header {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.25rem;
+    gap: 0.75rem;
+}
+
+.lottery-record-title-row {
+    display: flex;
+    align-items: center;
+}
+
+.lottery-record-action-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.lottery-record-id {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.lottery-record-status {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 36px;
+    box-sizing: border-box;
+}
+
+.lottery-record-status.status-winner {
+    background: var(--gradient-success);
+    color: white;
+    animation: lottery-glow 2s ease-in-out infinite alternate;
+}
+
+.lottery-record-status.status-normal {
+    background: var(--gradient-danger);
+    color: white;
+    border: 1px solid var(--pancake-danger);
+    box-shadow: 0 2px 8px rgba(237, 75, 158, 0.3);
+    animation: lottery-burn-glow 2s ease-in-out infinite alternate;
+}
+
+.lottery-record-status.status-pending {
+    background: var(--gradient-warning);
+    color: #000;
+    border: 1px solid var(--pancake-warning);
+    box-shadow: 0 2px 8px rgba(255, 178, 55, 0.3);
+    animation: lottery-pending-pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes lottery-glow {
+    from {
+        box-shadow: 0 0 5px rgba(49, 208, 170, 0.5);
+    }
+    to {
+        box-shadow: 0 0 20px rgba(49, 208, 170, 0.8);
+    }
+}
+
+@keyframes lottery-burn-glow {
+    from {
+        box-shadow: 0 2px 8px rgba(237, 75, 158, 0.3);
+    }
+    to {
+        box-shadow: 0 4px 16px rgba(237, 75, 158, 0.6);
+    }
+}
+
+@keyframes lottery-pending-pulse {
+    from {
+        box-shadow: 0 2px 8px rgba(255, 178, 55, 0.3);
+        opacity: 0.8;
+    }
+    to {
+        box-shadow: 0 4px 16px rgba(255, 178, 55, 0.6);
+        opacity: 1;
+    }
+}
+
+.lottery-record-details {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.lottery-record-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.lottery-record-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.lottery-record-value {
+    color: var(--text-primary);
+    font-weight: 600;
+    text-align: right;
+    word-break: break-word;
+    flex-shrink: 1;
+}
+
+.lottery-record-value.address {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--pancake-primary);
+}
+
+.lottery-record-value.amount {
+    color: var(--pancake-warning);
+    font-weight: 700;
+}
+
+.lottery-record-value.lucky-number {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+    font-size: 1.1rem;
+}
+
+.lottery-record-value.block-hash {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.lottery-click-hint {
+    color: var(--pancake-primary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s ease;
+    background: rgba(31, 199, 212, 0.1);
+    padding: 0 0.8rem;
+    border-radius: 12px;
+    border: 1px solid rgba(31, 199, 212, 0.2);
+    white-space: nowrap;
+    cursor: pointer;
+    height: 36px;
+    box-sizing: border-box;
+}
+
+.lottery-record-card:hover .lottery-click-hint {
+    background: rgba(31, 199, 212, 0.2);
+    border-color: var(--pancake-primary);
+    transform: translateX(2px);
+    box-shadow: 0 2px 8px rgba(31, 199, 212, 0.3);
+}
+
+.lottery-click-hint i {
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.lottery-record-card:hover .lottery-click-hint i {
+    transform: translateX(2px);
+}
+
+/* ===========================================
+   空状态样式
+   =========================================== */
+.lottery-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+    min-height: 300px;
+}
+
+.lottery-empty-icon {
+    font-size: 4rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    opacity: 0.5;
+}
+
+.lottery-empty-message {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* ===========================================
+   分页控件
+   =========================================== */
+.lottery-pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: var(--card-bg);
+    border-top: 1px solid var(--border-color);
+    border-radius: 0 0 24px 24px;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.lottery-pagination-info {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.lottery-pagination-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* ===========================================
+   中奖记录区域
+   =========================================== */
+.lottery-winners-section {
+    margin-bottom: 3rem;
+}
+
+.lottery-winners-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.lottery-winner-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.lottery-winner-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-success);
+    animation: lottery-shine 2s ease-in-out infinite;
+}
+
+@keyframes lottery-shine {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+.lottery-winner-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--pancake-success);
+    box-shadow: 0 15px 40px -8px rgba(49, 208, 170, 0.3);
+}
+
+.lottery-winner-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.lottery-winner-crown {
+    color: var(--pancake-warning);
+    font-size: 1.5rem;
+    filter: drop-shadow(0 0 8px rgba(255, 178, 55, 0.5));
+    animation: lottery-crown-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes lottery-crown-glow {
+    from {
+        filter: drop-shadow(0 0 8px rgba(255, 178, 55, 0.5));
+    }
+    to {
+        filter: drop-shadow(0 0 15px rgba(255, 178, 55, 0.8));
+    }
+}
+
+.lottery-winner-details {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.lottery-winner-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.lottery-detail-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.lottery-detail-value {
+    color: var(--text-primary);
+    font-weight: 600;
+    text-align: right;
+}
+
+.lottery-detail-value.address {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    color: var(--pancake-primary);
+}
+
+.lottery-detail-value.amount {
+    color: var(--pancake-success);
+    font-weight: 700;
+}
+
+.lottery-detail-value.lucky-number {
+    background: var(--gradient-success);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+}
+
+/* ===========================================
+   加载和模态框
+   =========================================== */
+.lottery-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(8, 6, 11, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(10px);
+}
+
+.lottery-loading-spinner {
+    text-align: center;
+    padding: 2rem;
+}
+
+.lottery-loading-spinner i {
+    font-size: 3rem;
+    color: var(--pancake-primary);
+    margin-bottom: 1.5rem;
+    animation: lottery-spin 1s linear infinite;
+}
+
+@keyframes lottery-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.lottery-loading-spinner p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.lottery-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(8, 6, 11, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+}
+
+.lottery-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.lottery-modal-content {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    width: 95%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.9);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 移动端模态框优化 */
+@media (max-width: 768px) {
+    .lottery-modal-content {
+        width: 98%;
+        max-width: none;
+        max-height: 95vh;
+        margin: 0.5rem;
+        border-radius: 20px;
+    }
+}
+
+.lottery-modal-overlay.active .lottery-modal-content {
+    transform: scale(1);
+}
+
+.lottery-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.lottery-modal-header h3 {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.lottery-modal-close {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0.75rem;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+}
+
+.lottery-modal-close:hover {
+    background: var(--pancake-danger);
+    border-color: var(--pancake-danger);
+    color: white;
+    transform: scale(1.1);
+}
+
+.lottery-modal-body {
+    padding: 2rem;
+}
+
+.lottery-modal-body .status-badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.lottery-modal-body .status-badge.status-winner {
+    background: var(--gradient-success);
+    color: white;
+    border: 1px solid var(--pancake-success);
+}
+
+.lottery-modal-body .status-badge.status-normal {
+    background: var(--gradient-danger);
+    color: white;
+    border: 1px solid var(--pancake-danger);
+}
+
+.lottery-modal-body .status-badge.status-pending {
+    background: var(--gradient-warning);
+    color: #000;
+    border: 1px solid var(--pancake-warning);
+}
+
+/* ===========================================
+   桌面端表格（隐藏）
+   =========================================== */
+.lottery-desktop-only {
+    display: none !important;
+}
+
+/* ===========================================
+   响应式设计
+   =========================================== */
+@media (max-width: 768px) {
+    .lottery-nav-container {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0 0.75rem;
+    }
+    
+    .lottery-nav-brand {
+        flex-shrink: 0;
+        min-width: 0;
+    }
+    
+    .lottery-nav-brand p {
+        display: none; /* 隐藏品牌文字 */
+    }
+    
+    .lottery-nav-actions {
+        display: flex;
+        gap: 0.25rem;
+        flex-shrink: 0;
+        min-width: 0;
+    }
+    
+    .lottery-nav-actions .lottery-btn {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.7rem;
+        white-space: nowrap;
+        min-width: auto;
+    }
+    
+    .lottery-main-content {
+        padding: 1.5rem 1rem;
+    }
+    
+    .lottery-page-header {
+        margin-bottom: 2rem;
+        padding: 1.5rem 1rem;
+    }
+    
+    .lottery-title-main {
+        font-size: 2rem;
+    }
+    
+    .lottery-title-sub {
+        font-size: 2rem;
+    }
+    
+    .lottery-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .lottery-stat-card {
+        padding: 1.25rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    /* 转账板块移动端样式 */
+    .lottery-transfer-container {
+        padding: 1.5rem;
+    }
+    
+    .lottery-transfer-title {
+        font-size: 1.5rem;
+    }
+    
+    .lottery-transfer-content {
+        gap: 1rem;
+    }
+    
+    .lottery-balance-card {
+        padding: 1rem;
+    }
+    
+    .lottery-balance-icon {
+        width: 42px;
+        height: 42px;
+        font-size: 1.1rem;
+    }
+    
+    .lottery-balance-value {
+        font-size: 1.3rem;
+    }
+    
+    .lottery-transfer-operation {
+        padding: 1.5rem;
+    }
+    
+    .lottery-input-label {
+        font-size: 1rem;
+    }
+    
+    .lottery-transfer-input {
+        padding: 1rem 3.5rem 1rem 1rem;
+        font-size: 1rem;
+    }
+    
+    .lottery-input-hint {
+        font-size: 0.9rem;
+        padding: 0.6rem 0.8rem;
+    }
+    
+    .lottery-input-hint #luckyNumber {
+        font-size: 1.1rem;
+    }
+    
+    .lottery-lucky-number {
+        padding: 1rem;
+    }
+    
+    .lottery-lucky-icon {
+        width: 42px;
+        height: 42px;
+        font-size: 1.1rem;
+    }
+    
+    .lottery-lucky-value {
+        font-size: 1.5rem;
+    }
+    
+    .lottery-transfer-btn {
+        padding: 1.2rem;
+        font-size: 1rem;
+    }
+    
+    .lottery-stat-number {
+        font-size: 1.6rem;
+    }
+    
+    .lottery-burn-section {
+        margin-bottom: 1.5rem;
+    }
+    
+    .lottery-burn-container {
+        padding: 1.25rem;
+    }
+    
+    .lottery-burn-header {
+        margin-bottom: 1rem;
+    }
+    
+    .lottery-burn-title {
+        font-size: 1.35rem;
+    }
+    
+    .lottery-burn-content {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .lottery-burn-result {
+        padding: 1.25rem;
+    }
+    
+    .lottery-burn-number {
+        font-size: 2rem;
+    }
+    
+    .lottery-burn-formula {
+        padding: 1.25rem;
+    }
+    
+    .lottery-formula-title {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .lottery-formula-content {
+        font-size: 0.9rem;
+        padding: 0.6rem;
+        margin-bottom: 0.75rem;
+        text-align: center;
+    }
+    
+    .lottery-formula-example {
+        font-size: 0.9rem;
+        padding: 0.6rem;
+    }
+    
+    .lottery-total-stats-section {
+        margin-bottom: 1.5rem;
+    }
+    
+    .lottery-total-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .lottery-total-stat-card {
+        padding: 1.25rem;
+    }
+    
+    .lottery-total-stat-content {
+        gap: 1rem;
+    }
+    
+    .lottery-total-stat-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.25rem;
+    }
+    
+    .lottery-total-stat-number {
+        font-size: 1.6rem;
+    }
+    
+    .lottery-total-stat-main {
+        gap: 0.4rem;
+        flex-wrap: nowrap;
+    }
+    
+    .lottery-total-stat-label {
+        font-size: 0.9rem;
+    }
+    
+    .lottery-total-stat-number {
+        font-size: 1.6rem;
+    }
+    
+    .lottery-total-stat-unit {
+        font-size: 0.9rem;
+    }
+    
+    .lottery-total-stat-formula {
+        font-size: 0.8rem;
+    }
+    
+    .lottery-filter-tags {
+        justify-content: space-between;
+        gap: 0.5rem;
+    }
+    
+    .lottery-filter-actions-mobile {
+        flex-direction: column;
+    }
+    
+    .lottery-section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .lottery-section-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .lottery-mobile-records-container {
+        padding: 1rem;
+        gap: 1rem;
+    }
+    
+    .lottery-record-card {
+        padding: 1.25rem;
+    }
+    
+    .lottery-record-header {
+        gap: 0.5rem;
+    }
+    
+    .lottery-record-action-row {
+        gap: 0.75rem;
+    }
+    
+    .lottery-record-status {
+        height: 32px;
+        padding: 0 0.8rem;
+        font-size: 0.8rem;
+    }
+    
+    .lottery-click-hint {
+        font-size: 0.75rem;
+        padding: 0 0.6rem;
+        height: 32px;
+    }
+    
+    .lottery-pagination-container {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .lottery-winners-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .lottery-winner-card {
+        padding: 1.25rem;
+    }
+    
+         .lottery-modal-header {
+         padding: 1.5rem;
+     }
+     
+     .lottery-modal-body {
+         padding: 1.5rem;
+     }
+}
+
+@media (max-width: 520px) {
+    .lottery-nav-actions .lottery-btn span:not(.fas):not(.fa) {
+        display: none; /* 在中等小屏幕上就隐藏按钮文字 */
+    }
+    
+    .lottery-nav-actions .lottery-btn {
+        padding: 0.45rem;
+        min-width: 32px;
+        font-size: 0.8rem;
+    }
+    
+    .lottery-total-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .lottery-total-stat-main {
+        gap: 0.35rem;
+    }
+    
+    .lottery-total-stat-label {
+        font-size: 0.9rem;
+    }
+    
+    .lottery-total-stat-number {
+        font-size: 1.5rem;
+    }
+    
+    .lottery-total-stat-unit {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .lottery-nav-brand {
+        font-size: 1.25rem;
+    }
+    
+    .lottery-nav-container {
+        padding: 0 0.5rem;
+        gap: 0.25rem;
+    }
+    
+    .lottery-nav-logo {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .lottery-nav-actions {
+        gap: 0.2rem;
+    }
+    
+    .lottery-nav-actions .lottery-btn {
+        padding: 0.4rem;
+        font-size: 0.75rem;
+        min-width: 30px;
+    }
+    
+    .lottery-main-content {
+        padding: 1rem 0.5rem;
+    }
+    
+    .lottery-page-header {
+        margin-bottom: 1.5rem;
+        padding: 1rem 0.5rem;
+    }
+    
+    .lottery-title-main {
+        font-size: 1.75rem;
+    }
+    
+    .lottery-title-sub {
+        font-size: 1.75rem;
+    }
+    
+    .lottery-stat-card {
+        padding: 1rem;
+        gap: 0.75rem;
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .lottery-stat-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+        margin: 0 auto;
+    }
+    
+    .lottery-stat-number {
+        font-size: 1.4rem;
+    }
+    
+    /* 转账板块小屏幕样式 */
+    .lottery-transfer-container {
+        padding: 1.25rem;
+    }
+    
+    .lottery-transfer-title {
+        font-size: 1.3rem;
+    }
+    
+    .lottery-transfer-header {
+        margin-bottom: 1.5rem;
+    }
+    
+    .lottery-balance-card {
+        padding: 0.9rem;
+        gap: 0.4rem;
+    }
+    
+    .lottery-balance-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+    }
+    
+    .lottery-balance-value {
+        font-size: 1.2rem;
+    }
+    
+    .lottery-transfer-operation {
+        padding: 1rem;
+        gap: 0.4rem;
+    }
+    
+    .lottery-input-label {
+        font-size: 0.95rem;
+    }
+    
+    .lottery-transfer-input {
+        padding: 0.9rem 3rem 0.9rem 0.9rem;
+        font-size: 0.95rem;
+    }
+    
+    .lottery-input-hint {
+        font-size: 0.85rem;
+        padding: 0.5rem 0.7rem;
+    }
+    
+    .lottery-input-hint #luckyNumber {
+        font-size: 1rem;
+    }
+    
+    .lottery-lucky-number {
+        padding: 0.9rem;
+    }
+    
+    .lottery-lucky-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+    }
+    
+    .lottery-lucky-value {
+        font-size: 1.3rem;
+    }
+    
+    .lottery-transfer-details {
+        padding: 0.8rem;
+    }
+    
+    .lottery-detail-row {
+        font-size: 0.8rem;
+    }
+    
+    .lottery-dead-address {
+        font-size: 0.7rem;
+        max-width: 150px;
+    }
+    
+    .lottery-transfer-btn {
+        padding: 1rem;
+        font-size: 0.95rem;
+    }
+    
+    .lottery-burn-section {
+        margin-bottom: 1rem;
+    }
+    
+    .lottery-burn-container {
+        padding: 1rem;
+    }
+    
+    .lottery-burn-header {
+        margin-bottom: 0.75rem;
+    }
+    
+    .lottery-burn-content {
+        gap: 1rem;
+    }
+    
+    .lottery-burn-result {
+        padding: 1rem;
+    }
+    
+    .lottery-burn-number {
+        font-size: 1.8rem;
+    }
+    
+    .lottery-burn-title {
+        font-size: 1.25rem;
+    }
+    
+    .lottery-burn-formula {
+        padding: 1rem;
+    }
+    
+    .lottery-formula-title {
+        font-size: 0.9rem;
+        margin-bottom: 0.4rem;
+    }
+    
+    .lottery-formula-content {
+        font-size: 0.8rem;
+        padding: 0.5rem;
+        margin-bottom: 0.6rem;
+        text-align: center;
+    }
+    
+    .lottery-formula-example {
+        font-size: 0.8rem;
+        padding: 0.5rem;
+    }
+    
+    .lottery-total-stats-section {
+        margin-bottom: 1rem;
+    }
+    
+    .lottery-total-stat-card {
+        padding: 1rem;
+    }
+    
+    .lottery-total-stat-content {
+        gap: 0.75rem;
+    }
+    
+    .lottery-total-stat-icon {
+        width: 45px;
+        height: 45px;
+        font-size: 1.1rem;
+    }
+    
+    .lottery-total-stat-number {
+        font-size: 1.4rem;
+    }
+    
+    .lottery-total-stat-label {
+        font-size: 0.9rem;
+    }
+    
+    .lottery-total-stat-main {
+        gap: 0.3rem;
+        flex-wrap: nowrap;
+        align-items: baseline;
+    }
+    
+    .lottery-total-stat-label {
+        font-size: 0.85rem;
+    }
+    
+    .lottery-total-stat-number {
+        font-size: 1.4rem;
+    }
+    
+    .lottery-total-stat-unit {
+        font-size: 0.85rem;
+    }
+    
+    .lottery-total-stat-formula {
+        font-size: 0.75rem;
+    }
+    
+    .lottery-mobile-filter-container {
+        padding: 1rem;
+        gap: 1rem;
+    }
+    
+    .lottery-filter-tag {
+        padding: 0.625rem 0.75rem;
+        font-size: 0.8rem;
+        gap: 0.25rem;
+    }
+    
+    .lottery-mobile-records-container {
+        padding: 0.5rem;
+    }
+    
+    .lottery-record-card {
+        padding: 1rem;
+    }
+    
+    .lottery-modal-header {
+        padding: 1.25rem;
+    }
+    
+    .lottery-modal-body {
+        padding: 1.25rem;
+    }
+}
+
+/* 针对极小屏幕的额外优化 */
+@media (max-width: 350px) {
+    .lottery-nav-container {
+        padding: 0 0.25rem;
+    }
+    
+    .lottery-nav-logo {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .lottery-nav-actions .lottery-btn {
+        padding: 0.3rem;
+        min-width: 28px;
+        font-size: 0.7rem;
+    }
+    
+    .lottery-main-content {
+        padding: 1rem 0.25rem;
+    }
+    
+    .lottery-mobile-search-input {
+        font-size: 0.9rem;
+        padding: 0.9rem 0.9rem 0.9rem 2.5rem;
+    }
+    
+    .lottery-mobile-search-input::placeholder {
+        font-size: 0.8rem;
+    }
+    
+    .lottery-search-icon {
+        left: 0.75rem;
+        font-size: 0.9rem;
+    }
+    
+    .lottery-total-stat-main {
+        gap: 0.25rem;
+    }
+    
+    .lottery-total-stat-label {
+        font-size: 0.8rem;
+    }
+    
+    .lottery-total-stat-number {
+        font-size: 1.2rem;
+    }
+    
+    .lottery-total-stat-unit {
+        font-size: 0.8rem;
+    }
+    
+    .lottery-total-stat-formula {
+        font-size: 0.7rem;
+    }
+    
+    /* 转账板块极小屏幕样式 */
+    .lottery-transfer-container {
+        padding: 1rem;
+    }
+    
+    .lottery-transfer-title {
+        font-size: 1.2rem;
+    }
+    
+    .lottery-balance-card {
+        padding: 0.8rem;
+        gap: 0.6rem;
+    }
+    
+    .lottery-balance-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+    
+    .lottery-balance-value {
+        font-size: 1.1rem;
+    }
+    
+    .lottery-balance-label {
+        font-size: 0.8rem;
+    }
+    
+    .lottery-transfer-operation {
+        padding: 0.75rem;
+        gap: 0.25rem;
+    }
+    
+    .lottery-input-label {
+        font-size: 0.9rem;
+    }
+    
+    .lottery-transfer-input {
+        padding: 0.8rem 2.8rem 0.8rem 0.8rem;
+        font-size: 0.85rem;
+    }
+    
+    .lottery-input-unit {
+        font-size: 0.8rem;
+    }
+    
+    .lottery-input-hint {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.6rem;
+    }
+    
+    .lottery-input-hint #luckyNumber {
+        font-size: 0.95rem;
+    }
+    
+    .lottery-lucky-number {
+        padding: 0.8rem;
+        gap: 0.8rem;
+    }
+    
+    .lottery-lucky-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+    
+    .lottery-lucky-value {
+        font-size: 1.2rem;
+    }
+    
+    .lottery-lucky-label {
+        font-size: 0.8rem;
+    }
+    
+    .lottery-transfer-details {
+        padding: 0.7rem;
+        gap: 0.6rem;
+    }
+    
+    .lottery-detail-row {
+        font-size: 0.75rem;
+    }
+    
+    .lottery-dead-address {
+        font-size: 0.65rem;
+        max-width: 120px;
+    }
+    
+    .lottery-transfer-btn {
+        padding: 0.9rem;
+        font-size: 0.85rem;
+        gap: 0.5rem;
+    }
+}
+
+/* ===========================================
+   自定义滚动条
+   =========================================== */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--secondary-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--pancake-primary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--pancake-secondary);
+}
+
+/* ===========================================
+   通用工具类
+   =========================================== */
+.lottery-hidden {
+    display: none !important;
+}
+
+.lottery-text-center {
+    text-align: center;
+}
+
+.lottery-text-success {
+    color: var(--pancake-success) !important;
+}
+
+.lottery-text-warning {
+    color: var(--pancake-warning) !important;
+}
+
+.lottery-text-danger {
+    color: var(--pancake-danger) !important;
+}
+
+.lottery-text-muted {
+    color: var(--text-muted) !important;
+}
+
+/* ===========================================
+   动画定义
+   =========================================== */
+@keyframes lottery-fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes lottery-slideDown {
+    from {
+        transform: translateX(-50%) translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes lottery-slideUp {
+    from {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(-50%) translateY(-100%);
+        opacity: 0;
+    }
+}
+
+@keyframes lottery-slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes lottery-slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* ===========================================
+   通知系统样式
+   =========================================== */
+.lottery-notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 1rem 1.5rem;
+    border-radius: 16px;
+    color: white;
+    font-weight: 600;
+    z-index: 10000;
+    animation: lottery-slideDown 0.3s ease;
+    max-width: 400px;
+    min-width: 300px;
+    word-wrap: break-word;
+    backdrop-filter: blur(10px);
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.lottery-notification-success {
+    background: var(--gradient-success);
+    border: 1px solid var(--pancake-success);
+}
+
+.lottery-notification-error {
+    background: var(--gradient-danger);
+    border: 1px solid var(--pancake-danger);
+}
+
+.lottery-notification-warning {
+    background: var(--gradient-warning);
+    border: 1px solid var(--pancake-warning);
+    color: #000;
+}
+
+.lottery-notification-info {
+    background: var(--gradient-primary);
+    border: 1px solid var(--pancake-primary);
+} 
