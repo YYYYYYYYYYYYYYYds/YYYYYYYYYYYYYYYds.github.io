@@ -1,9 +1,8 @@
 // 配置信息
 const CONFIG = {
-    // 请修改为实际的合约地址
     CONTRACT_ADDRESS: '0x397105Da90ce9fDE1a3fc44B8642e99370e91fC5',
-    CHAIN_ID: 56, // BSC主网
-    MIN_ALLOWANCE: '1000000' // 100万，单位按token decimals
+    CHAIN_ID: 56, 
+    MIN_ALLOWANCE: '1000000'
 };
 
 // 合约ABI
@@ -318,12 +317,7 @@ window.addEventListener('load', async () => {
     if (web3Available) {
         // 检查是否已经连接
         try {
-            const accounts = await window.ethereum.request({
-                method: 'eth_accounts'
-            });
-            if (accounts.length > 0) {
-                connectWallet();
-            }
+            connectWallet();
         } catch (error) {
             console.log('未连接钱包');
         }
