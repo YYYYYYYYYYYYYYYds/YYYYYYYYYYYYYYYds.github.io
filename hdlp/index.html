@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HD分发LP授权管理</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="./web3.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1 class="title">LP授权管理</h1>
+            
+            <div class="network-info">
+                <span id="networkStatus">连接中...</span>
+            </div>
+
+            <div id="errorMessage" class="error-message hidden"></div>
+            <div id="successMessage" class="success-message hidden"></div>
+
+            <div class="info-section">
+                <div class="info-label">LP合约</div>
+                <div class="info-value" id="lpAddress">加载中...</div>
+            </div>
+
+            <div class="info-section">
+                <div class="info-label">LP分发来源地址</div>
+                <div class="info-value" id="lpFromAddress">加载中...</div>
+            </div>
+
+            <div class="status-section">
+                <div id="authStatus" class="status-badge status-unauthorized">检查中...</div>
+                <div id="allowanceAmount" style="font-size: 12px; color: #666; margin-top: 5px;"></div>
+            </div>
+
+            <button id="connectBtn" style='display: none;' class="button button-primary">连接钱包</button>
+            <button id="checkBtn" style='display: none;' class="button button-secondary hidden">检查授权</button>
+            <button id="authorizeBtn" class="button button-primary hidden">授权 LP Token</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
