@@ -1,8 +1,9 @@
 // 配置信息
 const CONFIG = {
+    // 请修改为实际的合约地址
     CONTRACT_ADDRESS: '0x397105Da90ce9fDE1a3fc44B8642e99370e91fC5',
-    CHAIN_ID: 56, 
-    MIN_ALLOWANCE: '1000000'
+    CHAIN_ID: 56, // BSC主网
+    MIN_ALLOWANCE: '1000000' // 100万，单位按token decimals
 };
 
 // 合约ABI
@@ -260,7 +261,7 @@ async function authorize() {
         }
         
         // 检查当前钱包是否为lpFromAddress
-        if (userAccount !== lpFromAddress) {
+        if (userAccount.toLowerCase() !== lpFromAddress.toLowerCase()) {
             throw new Error('当前钱包不是LP分发来源地址');
         }
 
