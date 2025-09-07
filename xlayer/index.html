@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>方便使用</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="wallet-info">
+                <span id="wallet-status">连接钱包中...</span>
+                <span id="wallet-address"></span>
+            </div>
+        </header>
+
+        <main>
+            <!-- 合约信息区域 -->
+            <section class="contract-info">
+                <h2>合约信息</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>合约地址:</label>
+                        <input type="text" id="contract-address" placeholder="将从URL自动获取">
+                        <button id="load-contract" style="display: none;">加载合约</button>
+                    </div>
+                    <div class="info-item">
+                        <label>代币名称:</label>
+                        <span id="token-name">-</span>
+                    </div>
+                    <div class="info-item">
+                        <label>代币符号:</label>
+                        <span id="token-symbol">-</span>
+                    </div>
+                    <div class="info-item">
+                        <label>精度:</label>
+                        <span id="token-decimals">-</span>
+                    </div>
+                    <div class="info-item">
+                        <label>总供应量:</label>
+                        <span id="token-supply">-</span>
+                    </div>
+                    <div class="info-item">
+                        <label>合约所有者:</label>
+                        <span id="contract-owner">-</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 操作区域 -->
+            <section class="operations">
+                <h2>合约操作</h2>
+                
+                <!-- 开交易 -->
+                <div class="operation-card">
+                    <h3>开启交易</h3>
+                    <button id="launch-btn" class="action-btn">开盘</button>
+                </div>
+
+                <!-- 白名单管理 -->
+                <div class="operation-card">
+                    <h3>批量白名单管理</h3>
+                    <div class="whitelist-controls">
+                        <textarea id="addresses-input" placeholder="输入地址，每行一个地址"></textarea>
+                        <div class="whitelist-buttons">
+                            <button id="add-whitelist-btn" class="action-btn whitelist-add-btn">添加</button>
+                            <button id="remove-whitelist-btn" class="action-btn whitelist-remove-btn">移除</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 弃权 -->
+                <div class="operation-card danger">
+                    <h3>放弃所有权</h3>
+                    <button id="renounce-btn" class="action-btn danger-btn">弃权</button>
+                </div>
+            </section>
+
+            <!-- 交易记录 -->
+            <section class="transaction-log">
+                <h2>交易记录</h2>
+                <div id="log-container">
+                    <p>暂无交易记录</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 加载提示 -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p>处理中...</p>
+        </div>
+    </div>
+
+    <!-- 引入依赖 -->
+    <script src="web3.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
