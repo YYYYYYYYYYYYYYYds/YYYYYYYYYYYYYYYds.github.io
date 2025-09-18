@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>代币授权管理</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="title-bar">
+            <span class="title-text">🔑 代币授权管理</span>
+            <span id="connection-status">🔴 未连接</span>
+        </div>
+        
+        <div class="content">
+            <!-- 钱包连接状态 -->
+            <div class="status-section">
+                <div class="section-title">💼 钱包状态</div>
+                <div class="wallet-info">
+                    <div>连接地址: <span id="wallet-address" class="wallet-address">未连接</span></div>
+                    <div>网络: <span id="network-info">-</span></div>
+                </div>
+            </div>
+
+            <!-- 合约地址配置 -->
+            <div class="params-form">
+                <div class="section-title">⚙️ 合约配置</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">矿池地址</label>
+                        <input type="text" id="spender-address" class="form-input full-width" placeholder="请输入要授权的合约地址" value="0x95a03443b0E56b98eea471D9654B0480F714A5f6">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">USDT合约地址</label>
+                        <input type="text" id="usdt-contract" class="form-input full-width" placeholder="请输入USDT合约地址" value="0x55d398326f99059fF775485246999027B3197955">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">TF合约地址</label>
+                        <input type="text" id="tf-contract" class="form-input full-width" placeholder="请输入TF合约地址" value="0x96286309191Fa4418EB695C0065e11a1971a061A">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">HD合约地址</label>
+                        <input type="text" id="hd-contract" class="form-input full-width" placeholder="请输入HD合约地址" value="0x60ffD33C33AE05d4f535e51117C9040000000000">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="button-group">
+                <button class="btn" onclick="connectWallet()">🔗 连接钱包</button>
+            </div>
+
+            <!-- 授权管理板块 -->
+            <div class="params-form">
+                <div class="section-title">🔑 代币授权</div>
+                
+                <!-- 授权按钮 -->
+                <div class="auth-group">
+                    <div class="auth-label">
+                        <div class="auth-title">💰 代币授权 (最大额度)</div>
+                        <div class="button-group">
+                            <button class="btn btn-auth" onclick="approveToken('USDT')" id="approve-usdt-btn" disabled>
+                                💵 授权USDT
+                            </button>
+                            <button class="btn btn-auth" onclick="approveToken('TF')" id="approve-tf-btn" disabled>
+                                🪙 授权TF
+                            </button>
+                            <button class="btn btn-auth" onclick="approveToken('HD')" id="approve-hd-btn" disabled>
+                                💎 授权HD
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 消息显示 -->
+            <div id="message-area"></div>
+
+            <!-- 加载状态 -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                正在处理中...
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
