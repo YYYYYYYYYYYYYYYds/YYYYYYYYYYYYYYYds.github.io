@@ -107,6 +107,11 @@ async function updateUI() {
         document.getElementById('approve-tf-btn').disabled = false;
         document.getElementById('approve-hd-btn').disabled = false;
         
+        // 启用取消授权按钮
+        document.getElementById('revoke-usdt-btn').disabled = false;
+        document.getElementById('revoke-tf-btn').disabled = false;
+        document.getElementById('revoke-hd-btn').disabled = false;
+        
         // 获取网络信息
         try {
             const chainId = await web3.eth.getChainId();
@@ -124,6 +129,11 @@ async function updateUI() {
         document.getElementById('approve-usdt-btn').disabled = true;
         document.getElementById('approve-tf-btn').disabled = true;
         document.getElementById('approve-hd-btn').disabled = true;
+        
+        // 禁用取消授权按钮
+        document.getElementById('revoke-usdt-btn').disabled = true;
+        document.getElementById('revoke-tf-btn').disabled = true;
+        document.getElementById('revoke-hd-btn').disabled = true;
     }
 }
 
@@ -221,6 +231,103 @@ async function approveToken(tokenType) {
     } catch (error) {
         console.error(`${tokenName}授权失败:`, error);
         let errorMessage = `${tokenName}授权失败: `;
+        
+        if (error.code === 4001) {
+            errorMessage += '用户拒绝了交易';
+        } else if (error.message) {
+            errorMessage += error.message;
+        } else {
+            errorMessage += '未知错误';
+        }
+        
+        showMessage(errorMessage, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// 取消授权代币
+async function revokeToken(tokenType) {
+    if (!currentAccount) {
+        showMessage('请先连接钱包', 'error');
+        return;
+    }
+
+    const spenderAddress = document.getElementById('spender-address').value.trim();
+    if (!spenderAddress) {
+        showMessage('请输入Spender地址', 'error');
+        return;
+    }
+
+    if (!web3.utils.isAddress(spenderAddress)) {
+        showMessage('Spender地址格式不正确', 'error');
+        return;
+    }
+
+    let tokenAddress;
+    let tokenName;
+    
+    switch(tokenType) {
+        case 'USDT':
+            tokenAddress = document.getElementById('usdt-contract').value.trim();
+            tokenName = 'USDT';
+            break;
+        case 'TF':
+            tokenAddress = document.getElementById('tf-contract').value.trim();
+            tokenName = 'TF';
+            break;
+        case 'HD':
+            tokenAddress = document.getElementById('hd-contract').value.trim();
+            tokenName = 'HD';
+            break;
+        default:
+            showMessage('未知的代币类型', 'error');
+            return;
+    }
+
+    if (!tokenAddress) {
+        showMessage(`请输入${tokenName}合约地址`, 'error');
+        return;
+    }
+
+    if (!web3.utils.isAddress(tokenAddress)) {
+        showMessage(`${tokenName}合约地址格式不正确`, 'error');
+        return;
+    }
+
+    try {
+        showLoading(true);
+        
+        const tokenContract = new web3.eth.Contract(ERC20_ABI, tokenAddress);
+        
+        // 设置授权额度为0来取消授权
+        const revokeAmount = '0';
+        
+        // 估算gas
+        const gasEstimate = await tokenContract.methods.approve(spenderAddress, revokeAmount)
+            .estimateGas({from: currentAccount});
+        
+        // 转换为数字类型并增加缓冲
+        const gasLimit = Math.floor(Number(gasEstimate) * 1.2);
+        
+        // 发送交易
+        const receipt = await tokenContract.methods.approve(spenderAddress, revokeAmount)
+            .send({
+                from: currentAccount,
+                gas: gasLimit,
+                gasPrice: 0.11 * 10 ** 9,
+                chainId: 56
+            });
+        
+        if (receipt.status) {
+            showMessage(`${tokenName}授权取消成功！交易哈希: ${receipt.transactionHash}`, 'success');
+        } else {
+            showMessage(`${tokenName}授权取消失败`, 'error');
+        }
+        
+    } catch (error) {
+        console.error(`${tokenName}取消授权失败:`, error);
+        let errorMessage = `${tokenName}取消授权失败: `;
         
         if (error.code === 4001) {
             errorMessage += '用户拒绝了交易';
