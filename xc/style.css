@@ -1,0 +1,417 @@
+/* Win7风格样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Microsoft YaHei", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to bottom, #4688cb 0%, #2d5aa0 100%);
+    min-height: 100vh;
+    padding: 10px;
+    font-size: 14px;
+}
+
+.container {
+    max-width: 100%;
+    margin: 0 auto;
+    background: #f0f0f0;
+    border: 2px solid #aaa;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.title-bar {
+    background: linear-gradient(to bottom, #bdd4f0 0%, #7cb7e8 50%, #4a8bc2 51%, #3874aa 100%);
+    padding: 8px 12px;
+    border-bottom: 1px solid #888;
+    border-radius: 6px 6px 0 0;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.title-text {
+    font-size: 16px;
+}
+
+.content {
+    padding: 15px;
+    background: #f0f0f0;
+    border-radius: 0 0 6px 6px;
+}
+
+.status-section {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 15px;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.section-title {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #ddd;
+}
+
+.wallet-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.wallet-address {
+    font-family: monospace;
+    background: #f8f8f8;
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    word-break: break-all;
+    font-size: 12px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.stat-item {
+    background: #f8f8f8;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 2px;
+}
+
+.stat-value {
+    font-weight: bold;
+    color: #333;
+    font-size: 13px;
+}
+
+.params-form {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 15px;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* 消息显示区域样式 */
+#message-area {
+    margin: 20px 0;
+    min-height: 20px;
+}
+
+/* 授权管理板块增加上边距 */
+.params-form:last-of-type {
+    margin-top: 30px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.form-label {
+    font-size: 12px;
+    color: #333;
+    font-weight: bold;
+}
+
+.form-input {
+    padding: 6px 8px;
+    border: 1px solid #aaa;
+    border-radius: 3px;
+    background: #fff;
+    font-size: 14px;
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.1);
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #4a8bc2;
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.1), 0 0 3px rgba(74,139,194,0.3);
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn {
+    flex: 1;
+    padding: 10px 16px;
+    background: linear-gradient(to bottom, #ffffff 0%, #e5e5e5 50%, #d4d4d4 51%, #c7c7c7 100%);
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.8);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    transition: all 0.1s;
+}
+
+.btn:hover {
+    background: linear-gradient(to bottom, #f0f0f0 0%, #d0d0d0 50%, #b8b8b8 51%, #a8a8a8 100%);
+}
+
+.btn:active {
+    background: linear-gradient(to bottom, #c0c0c0 0%, #b0b0b0 50%, #a0a0a0 51%, #909090 100%);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background: linear-gradient(to bottom, #7cb7e8 0%, #4a8bc2 50%, #3874aa 51%, #2d5aa0 100%);
+    color: #fff;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.3);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(to bottom, #6ca6d7 0%, #3a7bb1 50%, #276499 51%, #1c4a8f 100%);
+}
+
+.btn-auth {
+    background: linear-gradient(to bottom, #28a745 0%, #218838 50%, #1e7e34 51%, #155724 100%);
+    color: #fff;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.3);
+}
+
+.btn-auth:hover {
+    background: linear-gradient(to bottom, #218838 0%, #1e7e34 50%, #155724 51%, #0d4218 100%);
+}
+
+.btn-revoke {
+    background: linear-gradient(to bottom, #dc3545 0%, #c82333 50%, #bd2130 51%, #a02622 100%);
+    color: #fff;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.3);
+}
+
+.btn-revoke:hover {
+    background: linear-gradient(to bottom, #c82333 0%, #bd2130 50%, #a02622 51%, #7a1e1e 100%);
+}
+
+.btn-auth:disabled {
+    background: linear-gradient(to bottom, #6c757d 0%, #5a6268 50%, #545b62 51%, #4e555b 100%);
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-revoke:disabled {
+    background: linear-gradient(to bottom, #6c757d 0%, #5a6268 50%, #545b62 51%, #4e555b 100%);
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* 授权管理板块使用与参数表单相同的样式 */
+
+.auth-group {
+    margin-bottom: 15px;
+}
+
+.auth-group:last-child {
+    margin-bottom: 0;
+}
+
+.auth-label {
+    padding: 12px;
+    background: linear-gradient(to right, #f8f8f8 0%, #fff 100%);
+    border-radius: 4px;
+    border-left: 3px solid #4a8bc2;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    margin-bottom: 0;
+}
+
+.auth-title {
+    font-size: 12px;
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* 授权标签内的按钮组样式 */
+.auth-label .button-group {
+    margin-top: 0;
+}
+
+/* 授权组特殊样式 */
+.auth-group:first-child .auth-label {
+    border-left-color: #28a745; /* 绿色 - 授权 */
+    background: linear-gradient(to right, #f0f9f0 0%, #fff 100%);
+}
+
+.auth-group:last-child .auth-label {
+    border-left-color: #dc3545; /* 红色 - 取消授权 */
+    background: linear-gradient(to right, #fdf2f2 0%, #fff 100%);
+}
+
+.loading {
+    display: none;
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ddd;
+    border-top: 2px solid #4a8bc2;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error {
+    background: #ffebee;
+    border: 1px solid #f44336;
+    color: #c62828;
+    padding: 8px;
+    border-radius: 3px;
+    margin: 8px 0;
+    font-size: 12px;
+}
+
+.success {
+    background: #e8f5e8;
+    border: 1px solid #4caf50;
+    color: #2e7d32;
+    padding: 8px;
+    border-radius: 3px;
+    margin: 8px 0;
+    font-size: 12px;
+}
+
+.range-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.range-group .form-input {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .content {
+        padding: 12px;
+    }
+    
+    .params-form {
+        padding: 10px;
+    }
+    
+    .range-group {
+        gap: 6px;
+    }
+    
+    .form-input {
+        padding: 5px 7px;
+    }
+    
+    .auth-label {
+        padding: 10px;
+    }
+    
+    .auth-title {
+        margin-bottom: 8px;
+    }
+    
+    #message-area {
+        margin: 15px 0;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 5px;
+    }
+    
+    .content {
+        padding: 10px;
+    }
+    
+    .params-form {
+        padding: 8px;
+    }
+    
+    .form-label {
+        font-size: 11px;
+    }
+    
+    .form-input {
+        font-size: 13px;
+        padding: 5px 6px;
+    }
+    
+    .btn {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+    
+    .range-group {
+        gap: 6px;
+    }
+    
+    .auth-label {
+        padding: 8px;
+    }
+    
+    .auth-title {
+        font-size: 11px;
+        margin-bottom: 8px;
+    }
+    
+    #message-area {
+        margin: 12px 0;
+    }
+} 

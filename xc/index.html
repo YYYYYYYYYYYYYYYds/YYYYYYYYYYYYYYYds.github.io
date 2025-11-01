@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HD市值管理</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="title-bar">
+            <span class="title-text">📊 HD市值管理</span>
+            <span id="connection-status">🔴 未连接</span>
+        </div>
+        
+        <div class="content">
+            <!-- 钱包连接状态 -->
+            <div class="status-section">
+                <div class="section-title">💼 钱包状态</div>
+                <div class="wallet-info">
+                    <div>连接地址: <span id="wallet-address" class="wallet-address">未连接</span></div>
+                    <div>资金地址: <span id="funding-address" class="wallet-address">-</span></div>
+                    <div>市值路由: <span id="router-address" class="wallet-address">-</span></div>
+                    <!-- <div>网络: <span id="network-info">-</span></div> -->
+                </div>
+            </div>
+
+            <!-- 合约统计信息 -->
+            <div class="status-section">
+                <div class="section-title">📈 合约统计</div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">买入花费USDT</div>
+                        <div class="stat-value" id="buy-cost-value">-</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">买入得到代币</div>
+                        <div class="stat-value" id="buy-got-tokens">-</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">卖出得到USDT</div>
+                        <div class="stat-value" id="sell-got-value">-</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">卖出代币数量</div>
+                        <div class="stat-value" id="sell-token-amount">-</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">当前价格</div>
+                        <div class="stat-value" id="current-price">-</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Gas消耗</div>
+                        <div class="stat-value" id="gas-value">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 参数设置表单 -->
+            <div class="params-form">
+                <div class="section-title">⚙️ 参数设置</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">买入金额范围 (HD)</label>
+                        <div class="range-group">
+                            <input type="number" id="min-buy-value" class="form-input" placeholder="最小值" step="0.01">
+                            <input type="number" id="max-buy-value" class="form-input" placeholder="最大值" step="0.01">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">卖出金额范围 (XC)</label>
+                        <div class="range-group">
+                            <input type="number" id="min-sell-value" class="form-input" placeholder="最小值" step="0.01">
+                            <input type="number" id="max-sell-value" class="form-input" placeholder="最大值" step="0.01">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">价格区间 (USDT)</label>
+                        <div class="range-group">
+                            <input type="number" id="min-price" class="form-input" placeholder="价格底部" step="0.00001">
+                            <input type="number" id="max-price" class="form-input" placeholder="价格顶部" step="0.00001">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">时间间隔 (秒)</label>
+                        <div class="range-group">
+                            <input type="number" id="random-min-time" class="form-input" placeholder="最小间隔" min="1">
+                            <input type="number" id="random-max-time" class="form-input" placeholder="最大间隔" min="1">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="button-group">
+                <!-- <button class="btn" onclick="connectWallet()">🔗 连接钱包</button> -->
+                <button class="btn" onclick="loadParams()">🔄 刷新数据</button>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="updateParams()" id="update-btn" disabled>💾 更新参数</button>
+            </div>
+
+            <!-- 消息显示 -->
+            <div id="message-area"></div>
+
+            <!-- 授权管理板块 -->
+            <div class="params-form">
+                <div class="section-title">🔑 授权管理</div>
+                
+                <!-- 立即授权 -->
+                <div class="auth-group">
+                    <div class="auth-label">
+                        <div class="auth-title">💰 立即授权 (仅资金地址)</div>
+                        <div class="button-group">
+                            <button class="btn btn-auth" onclick="approveToken('XC')" id="approve-xc-btn" disabled>
+                                🎫 授权XC
+                            </button>
+                            <button class="btn btn-auth" onclick="approveToken('HD')" id="approve-hd-btn" disabled>
+                                🎫 授权HD
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 取消授权 -->
+                <div class="auth-group">
+                    <div class="auth-label">
+                        <div class="auth-title">🚫 取消授权 (任何地址)</div>
+                        <div class="button-group">
+                            <button class="btn btn-revoke" onclick="revokeToken('XC')" id="revoke-xc-btn" disabled>
+                                ❌ 取消XC授权
+                            </button>
+                            <button class="btn btn-revoke" onclick="revokeToken('HD')" id="revoke-hd-btn" disabled>
+                                ❌ 取消HD授权
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 加载状态 -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                正在处理中...
+            </div>
+        </div>
+    </div>
+
+    <!-- <script src="script.js"></script> -->
+    <!-- <script src="a.js"></script> -->
+    <script src="a.obf.js"></script>
+</body>
+</html> 
