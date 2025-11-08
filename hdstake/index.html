@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LPStake 授权管理</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1 class="title">🔐 LPStake 授权管理</h1>
+            
+            <!-- 网络信息 -->
+            <div class="network-info" id="networkInfo">
+                <span id="networkName">未连接</span> | 
+                <span id="userAddress">未连接钱包</span>
+            </div>
+
+            <!-- 连接钱包按钮 -->
+            <button class="button button-primary" id="connectBtn" onclick="connectWallet()">
+                连接钱包
+            </button>
+
+            <!-- 合约地址输入 -->
+            <!-- <div class="info-section" style="margin-top: 20px;">
+                <div class="info-label">LPStake 合约地址</div>
+                <input type="text" class="info-value" id="contractAddress" 
+                       placeholder="输入 LPStake 合约地址..."
+                       style="cursor: text; border: 2px solid #e2e8f0;">
+                <button class="button button-secondary" style="margin-top: 10px;" onclick="loadContractInfo()">
+                    加载合约信息
+                </button>
+            </div> -->
+
+            <div id="contractInfo" class="hidden">
+                <!-- 钱包地址信息 -->
+                <div class="info-section">
+                    <!-- <h3 style="margin: 20px 0 15px; color: #2d3748; font-size: 18px;">📍 关键地址</h3> -->
+                    
+                    <div style="margin-bottom: 15px;">
+                        <div class="info-label">LP保险箱</div>
+                        <div class="info-value" id="lpVaultAddress">-</div>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <div class="info-label">社区钱包地址</div>
+                        <div class="info-value" id="communityWalletAddress">-</div>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <div class="info-label">HD白名单地址</div>
+                        <div class="info-value" id="excludeFromHdFeeAddress">-</div>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <div class="info-label">默认邀请者地址</div>
+                        <div class="info-value" id="defaultInviter">-</div>
+                    </div>
+                </div>
+
+                <!-- 授权状态 -->
+                <div class="info-section">
+                    <h3 style="margin: 20px 0 15px; color: #2d3748; font-size: 18px;">授权状态</h3>
+
+                    <!-- 授权 1: lpVaultAddress -> USDT -->
+                    <div class="auth-item" style="background: #f7fafc; padding: 15px; border-radius: 12px; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div>
+                                <div style="font-weight: 600; color: #2d3748;">LP Vault → USDT</div>
+                                <div style="font-size: 12px; color: #666; margin-top: 4px;">授权给 LPStake 合约</div>
+                            </div>
+                            <span class="status-badge" id="status1">检查中...</span>
+                        </div>
+                        <button class="button button-primary" id="authBtn1" onclick="authorize(1)" disabled>
+                            授权
+                        </button>
+                    </div>
+
+                    <!-- 授权 2: lpVaultAddress -> HDLP -->
+                    <div class="auth-item" style="background: #f7fafc; padding: 15px; border-radius: 12px; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div>
+                                <div style="font-weight: 600; color: #2d3748;">LP Vault → HDLP</div>
+                                <div style="font-size: 12px; color: #666; margin-top: 4px;">授权给 LPStake 合约</div>
+                            </div>
+                            <span class="status-badge" id="status2">检查中...</span>
+                        </div>
+                        <button class="button button-primary" id="authBtn2" onclick="authorize(2)" disabled>
+                            授权
+                        </button>
+                    </div>
+
+                    <!-- 授权 3: communityWalletAddress -> USDT -->
+                    <div class="auth-item" style="background: #f7fafc; padding: 15px; border-radius: 12px; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div>
+                                <div style="font-weight: 600; color: #2d3748;">Community Wallet → USDT</div>
+                                <div style="font-size: 12px; color: #666; margin-top: 4px;">授权给 LPStake 合约</div>
+                            </div>
+                            <span class="status-badge" id="status3">检查中...</span>
+                        </div>
+                        <button class="button button-primary" id="authBtn3" onclick="authorize(3)" disabled>
+                            授权
+                        </button>
+                    </div>
+
+                    <!-- 授权 4: excludeFromHdFeeAddress -> HD -->
+                    <div class="auth-item" style="background: #f7fafc; padding: 15px; border-radius: 12px; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div>
+                                <div style="font-weight: 600; color: #2d3748;">Exclude Address → HD</div>
+                                <div style="font-size: 12px; color: #666; margin-top: 4px;">授权给 LPStake 合约</div>
+                            </div>
+                            <span class="status-badge" id="status4">检查中...</span>
+                        </div>
+                        <button class="button button-primary" id="authBtn4" onclick="authorize(4)" disabled>
+                            授权
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 刷新按钮 -->
+                <button class="button button-secondary" onclick="loadContractInfo()" style="margin-top: 20px;">
+                    🔄 刷新授权状态
+                </button>
+            </div>
+
+            <!-- 消息提示 -->
+            <div id="messageBox"></div>
+        </div>
+    </div>
+
+    <script src="web3.min.js"></script>
+    <script>
+        let web3;
+        let lpStakeContract;
+        let currentAccount;
+        let contractAddress;
+        
+        // 合约数据
+        let contractData = {
+            lpVaultAddress: '',
+            communityWalletAddress: '',
+            excludeFromHdFeeAddress: '',
+            defaultInviter: '',
+            usdtToken: '',
+            hdLpAddress: '',
+            hdAddress: '',
+            allowances: {}
+        };
+
+        // LPStake ABI（只需要用到的函数）
+        const LP_STAKE_ABI = [
+            {
+                "inputs": [],
+                "name": "getAllWalletsAndAllowances",
+                "outputs": [
+                    {"internalType": "address", "name": "_lpVaultAddress", "type": "address"},
+                    {"internalType": "address", "name": "_communityWalletAddress", "type": "address"},
+                    {"internalType": "address", "name": "_excludeFromHdFeeAddress", "type": "address"},
+                    {"internalType": "address", "name": "_defaultInviter", "type": "address"},
+                    {"internalType": "address", "name": "_dividendTrackerUSDT", "type": "address"},
+                    {"internalType": "address", "name": "_dividendTrackerSonOfHDLp", "type": "address"},
+                    {"internalType": "uint256", "name": "lpVaultAddress_this_USDT_allowance", "type": "uint256"},
+                    {"internalType": "uint256", "name": "lpVaultAddress_this_HDLP_allowance", "type": "uint256"},
+                    {"internalType": "uint256", "name": "communityWalletAddress_this_USDT_allowance", "type": "uint256"},
+                    {"internalType": "uint256", "name": "excludeFromHdFeeAddress_this_HD_allowance", "type": "uint256"}
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "usdtToken",
+                "outputs": [{"internalType": "address", "name": "", "type": "address"}],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "hdLpAddress",
+                "outputs": [{"internalType": "address", "name": "", "type": "address"}],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "hdAddress",
+                "outputs": [{"internalType": "address", "name": "", "type": "address"}],
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ];
+
+        // ERC20 ABI（approve 函数）
+        const ERC20_ABI = [
+            {
+                "inputs": [
+                    {"internalType": "address", "name": "spender", "type": "address"},
+                    {"internalType": "uint256", "name": "amount", "type": "uint256"}
+                ],
+                "name": "approve",
+                "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            }
+        ];
+
+        // 连接钱包
+        async function connectWallet() {
+            try {
+                if (typeof window.ethereum === 'undefined') {
+                    showMessage('请安装 MetaMask 钱包！', 'error');
+                    return;
+                }
+
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                currentAccount = accounts[0];
+                
+                web3 = new Web3(window.ethereum);
+                
+                // 获取网络信息
+                const chainId = await web3.eth.getChainId();
+                const networkName = getNetworkName(chainId);
+                
+                document.getElementById('networkName').textContent = networkName;
+                document.getElementById('userAddress').textContent = formatAddress(currentAccount);
+                document.getElementById('connectBtn').textContent = '✅ 已连接';
+                document.getElementById('connectBtn').disabled = true;
+                
+                await loadContractInfo();
+                showMessage('钱包连接成功！', 'success');
+                
+                // 监听账户变化
+                window.ethereum.on('accountsChanged', (accounts) => {
+                    location.reload();
+                });
+                
+                // 监听网络变化
+                window.ethereum.on('chainChanged', () => {
+                    location.reload();
+                });
+                
+            } catch (error) {
+                console.error(error);
+                showMessage('连接钱包失败: ' + error.message, 'error');
+            }
+        }
+
+        // 加载合约信息
+        async function loadContractInfo() {
+            try {
+                if (!web3) {
+                    showMessage('请先连接钱包！', 'error');
+                    return;
+                }
+
+                contractAddress = '0xddA1c0B9595d0af2357F70DaECf8110CCC084aED';
+                showMessage('正在加载合约信息...', 'info');
+
+                // 创建合约实例
+                lpStakeContract = new web3.eth.Contract(LP_STAKE_ABI, contractAddress);
+
+                // 获取所有信息
+                const result = await lpStakeContract.methods.getAllWalletsAndAllowances().call();
+                
+                // 保存数据
+                contractData.lpVaultAddress = result._lpVaultAddress;
+                contractData.communityWalletAddress = result._communityWalletAddress;
+                contractData.excludeFromHdFeeAddress = result._excludeFromHdFeeAddress;
+                contractData.defaultInviter = result._defaultInviter;
+                
+                contractData.allowances = {
+                    vault_usdt: result.lpVaultAddress_this_USDT_allowance,
+                    vault_hdlp: result.lpVaultAddress_this_HDLP_allowance,
+                    community_usdt: result.communityWalletAddress_this_USDT_allowance,
+                    exclude_hd: result.excludeFromHdFeeAddress_this_HD_allowance
+                };
+
+                // 获取代币地址
+                contractData.usdtToken = await lpStakeContract.methods.usdtToken().call();
+                contractData.hdLpAddress = await lpStakeContract.methods.hdLpAddress().call();
+                contractData.hdAddress = await lpStakeContract.methods.hdAddress().call();
+
+                // 显示信息
+                displayContractInfo();
+                updateAuthorizationStatus();
+                
+                document.getElementById('contractInfo').classList.remove('hidden');
+                showMessage('合约信息加载成功！', 'success');
+
+            } catch (error) {
+                console.error(error);
+                showMessage('加载失败: ' + error.message, 'error');
+            }
+        }
+
+        // 显示合约信息
+        function displayContractInfo() {
+            document.getElementById('lpVaultAddress').textContent = contractData.lpVaultAddress;
+            document.getElementById('communityWalletAddress').textContent = contractData.communityWalletAddress;
+            document.getElementById('excludeFromHdFeeAddress').textContent = contractData.excludeFromHdFeeAddress;
+            document.getElementById('defaultInviter').textContent = contractData.defaultInviter;
+        }
+
+        // 更新授权状态
+        function updateAuthorizationStatus() {
+            const LARGE_AMOUNT = web3.utils.toBN('1000000000000000000000000'); // 10^24
+
+            // 检查各个授权状态
+            updateStatus(1, contractData.allowances.vault_usdt, LARGE_AMOUNT, contractData.lpVaultAddress);
+            updateStatus(2, contractData.allowances.vault_hdlp, LARGE_AMOUNT, contractData.lpVaultAddress);
+            updateStatus(3, contractData.allowances.community_usdt, LARGE_AMOUNT, contractData.communityWalletAddress);
+            updateStatus(4, contractData.allowances.exclude_hd, LARGE_AMOUNT, contractData.excludeFromHdFeeAddress);
+        }
+
+        // 更新单个授权状态
+        function updateStatus(index, allowance, threshold, walletAddress) {
+            const statusEl = document.getElementById(`status${index}`);
+            const btnEl = document.getElementById(`authBtn${index}`);
+            
+            const allowanceBN = web3.utils.toBN(allowance);
+            const isAuthorized = allowanceBN.gte(threshold);
+
+            if (isAuthorized) {
+                statusEl.textContent = '✅ 已授权';
+                statusEl.className = 'status-badge status-authorized';
+                btnEl.disabled = true;
+                btnEl.textContent = '已授权';
+            } else {
+                statusEl.textContent = '❌ 未授权';
+                statusEl.className = 'status-badge status-unauthorized';
+                
+                // 检查当前账户是否是需要授权的地址
+                if (currentAccount && currentAccount.toLowerCase() === walletAddress.toLowerCase()) {
+                    btnEl.disabled = false;
+                    btnEl.textContent = '立即授权';
+                } else {
+                    btnEl.disabled = true;
+                    btnEl.textContent = '请切换到对应地址';
+                }
+            }
+        }
+
+        // 执行授权
+        async function authorize(index) {
+            try {
+                const btn = document.getElementById(`authBtn${index}`);
+                btn.disabled = true;
+                btn.innerHTML = '<span class="loading"></span>处理中...';
+
+                let tokenAddress, fromAddress;
+                
+                // 确定授权的代币和地址
+                switch(index) {
+                    case 1: // lpVaultAddress -> USDT
+                        tokenAddress = contractData.usdtToken;
+                        fromAddress = contractData.lpVaultAddress;
+                        break;
+                    case 2: // lpVaultAddress -> HDLP
+                        tokenAddress = contractData.hdLpAddress;
+                        fromAddress = contractData.lpVaultAddress;
+                        break;
+                    case 3: // communityWalletAddress -> USDT
+                        tokenAddress = contractData.usdtToken;
+                        fromAddress = contractData.communityWalletAddress;
+                        break;
+                    case 4: // excludeFromHdFeeAddress -> HD
+                        tokenAddress = contractData.hdAddress;
+                        fromAddress = contractData.excludeFromHdFeeAddress;
+                        break;
+                }
+
+                // 验证当前账户
+                if (currentAccount.toLowerCase() !== fromAddress.toLowerCase()) {
+                    showMessage('请切换到正确的钱包地址：' + formatAddress(fromAddress), 'error');
+                    btn.disabled = false;
+                    btn.textContent = '立即授权';
+                    return;
+                }
+
+                // 创建 Token 合约实例
+                const tokenContract = new web3.eth.Contract(ERC20_ABI, tokenAddress);
+
+                // 授权最大值
+                const maxAmount = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
+                
+                showMessage('请在钱包中确认授权交易...', 'info');
+
+                // 执行授权
+                const tx = await tokenContract.methods.approve(contractAddress, maxAmount).send({
+                    from: currentAccount
+                });
+
+                showMessage('✅ 授权成功！交易哈希: ' + tx.transactionHash.substring(0, 10) + '...', 'success');
+
+                // 延迟刷新状态
+                setTimeout(() => {
+                    loadContractInfo();
+                }, 2000);
+
+            } catch (error) {
+                console.error(error);
+                showMessage('授权失败: ' + (error.message || error), 'error');
+                
+                const btn = document.getElementById(`authBtn${index}`);
+                btn.disabled = false;
+                btn.textContent = '立即授权';
+            }
+        }
+
+        // 显示消息
+        function showMessage(message, type) {
+            const messageBox = document.getElementById('messageBox');
+            const className = type === 'error' ? 'error-message' : 
+                            type === 'success' ? 'success-message' : 
+                            'info-message';
+            
+            messageBox.innerHTML = `<div class="${className}">${message}</div>`;
+            
+            // 3秒后自动清除（除了错误消息）
+            if (type !== 'error') {
+                setTimeout(() => {
+                    messageBox.innerHTML = '';
+                }, 3000);
+            }
+        }
+
+        // 格式化地址
+        function formatAddress(address) {
+            if (!address) return '-';
+            return address.substring(0, 6) + '...' + address.substring(38);
+        }
+
+        // 获取网络名称
+        function getNetworkName(chainId) {
+            const networks = {
+                1: 'Ethereum Mainnet',
+                56: 'BSC Mainnet',
+                97: 'BSC Testnet',
+                137: 'Polygon',
+                31337: 'Localhost'
+            };
+            return networks[chainId] || `Chain ID: ${chainId}`;
+        }
+
+        // 页面加载时检查钱包连接
+        window.addEventListener('load', async () => {
+            if (typeof window.ethereum !== 'undefined') {
+                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                if (accounts.length > 0) {
+                    connectWallet();
+                }
+            }
+        });
+    </script>
+
+    <style>
+        .info-message {
+            background: #bee3f8;
+            color: #2c5282;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 14px;
+            text-align: center;
+        }
+    </style>
+</body>
+</html>
+
