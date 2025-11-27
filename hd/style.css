@@ -164,6 +164,87 @@ body {
     box-shadow: inset 1px 1px 2px rgba(0,0,0,0.1), 0 0 3px rgba(74,139,194,0.3);
 }
 
+.probability-slider {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+    border: 1px dashed #c9d9f2;
+    border-radius: 4px;
+    background: linear-gradient(180deg, #f9fcff 0%, #eef5ff 100%);
+}
+
+.probability-slider input[type="range"] {
+    width: 100%;
+    display: block;
+    accent-color: #4a8bc2;
+    margin-top: 4px;
+}
+
+.probability-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.probability-pill {
+    flex: 1;
+    min-width: 120px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: #fff;
+    border: 1px solid #c9d9f2;
+    text-align: center;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.probability-pill.pill-buy {
+    background: #e6f3ff;
+    border-color: #90c4ff;
+}
+
+.probability-pill.pill-sell {
+    background: #fff2ef;
+    border-color: #ffb3a1;
+}
+
+.probability-pill .pill-label {
+    display: block;
+    font-size: 11px;
+    color: #666;
+}
+
+.probability-pill .pill-value {
+    font-size: 18px;
+    font-weight: bold;
+    color: #133a63;
+}
+
+.probability-mode {
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #fff;
+    background: #9e9e9e;
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.6);
+}
+
+.probability-mode.mode-bull {
+    background: linear-gradient(120deg, #ff8fb1, #ff4f81);
+}
+
+.probability-mode.mode-bear {
+    background: linear-gradient(120deg, #4f5b66, #2f3943);
+}
+
+.probability-mode.mode-flat {
+    background: linear-gradient(120deg, #ffd36b, #ff9400);
+    color: #4a2c00;
+}
+
 .button-group {
     display: flex;
     gap: 10px;

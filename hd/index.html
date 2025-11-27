@@ -70,26 +70,51 @@
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label">卖出数量范围 (HD)</label>
+                        <label class="form-label">卖出金额范围 (USDT)</label>
                         <div class="range-group">
                             <input type="number" id="min-sell-value" class="form-input" placeholder="最小值" step="0.01">
                             <input type="number" id="max-sell-value" class="form-input" placeholder="最大值" step="0.01">
                         </div>
                     </div>
                     
-                    <div class="form-group">
+                    <div class="form-group" style="display: none;">
                         <label class="form-label">价格区间 (USDT)</label>
                         <div class="range-group">
                             <input type="number" id="min-price" class="form-input" placeholder="价格底部" step="0.00001">
                             <input type="number" id="max-price" class="form-input" placeholder="价格顶部" step="0.00001">
                         </div>
                     </div>
-                    
+
+                    <div class="form-group">
+                        <label class="form-label">目标价格 (USDT)</label>
+                        <!-- <div class="range-group"> -->
+                            <input type="number" id="target-price" class="form-input" placeholder="目标价格" step="0.00001">
+                        <!-- </div> -->
+                    </div>
+
                     <div class="form-group">
                         <label class="form-label">时间间隔 (秒)</label>
                         <div class="range-group">
                             <input type="number" id="random-min-time" class="form-input" placeholder="最小间隔" min="1">
                             <input type="number" id="random-max-time" class="form-input" placeholder="最大间隔" min="1">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">买卖概率</label>
+                        <div class="probability-slider">
+                            <input type="range" id="buy-probability" min="0" max="100" value="50">
+                            <div class="probability-summary">
+                                <div class="probability-pill pill-buy">
+                                    <span class="pill-label">买入概率</span>
+                                    <span class="pill-value" id="buy-probability-text">50%</span>
+                                </div>
+                                <div class="probability-mode mode-flat" id="probability-mode">横盘模式</div>
+                                <div class="probability-pill pill-sell">
+                                    <span class="pill-label">卖出概率</span>
+                                    <span class="pill-value" id="sell-probability-text">50%</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -151,7 +176,7 @@
         </div>
     </div>
 
-    <!-- <script src="script.js"></script> -->
-    <script src="a.obf.js"></script>
+    <script src="script.js"></script>
+    <!-- <script src="a.obf.js"></script> -->
 </body>
 </html> 
