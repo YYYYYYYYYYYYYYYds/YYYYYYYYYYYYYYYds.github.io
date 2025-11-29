@@ -10,7 +10,7 @@ const CONTRACT_CONFIG = {
         contractAddress: '0x061114e4855ff61A16F220F98E2bA723978d4184', 
         chainId: 56, 
         usdtAddress: '0x55d398326f99059ff775485246999027b3197955',
-        hdTokenAddress: '', 
+        hdTokenAddress: '0x799EC3e38304B2A4C8dA7E3C8341fB8888888888', 
     }
 };
 
